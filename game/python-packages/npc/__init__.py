@@ -60,12 +60,16 @@ class NPC:
         while len(str(self.messages)) > 10000:
             self.messages.pop(1)
 
-        def on_completion(messages):
-            last_msg = messages[-1]
+        try:
+            logger.debug(f"Calling chatgpt.completion with messages: {self.messages}")
+            self.messages = chatgpt.completion(self.messages, proxy=self.proxy)
+            last_msg = self.messages[-1]
             if isinstance(last_msg, dict):
                 response = last_msg.get("content", "")
             else:
                 response = str(last_msg)
+            # Remove all <think>...</think> blocks (including multiline)
+            response = re.sub(r'<think>.*?</think>', '', response, flags=re.DOTALL | re.IGNORECASE)
             logger.info(f"NPC response: {response}")
             self.display_line_by_line(response)
             for controller in self.controllers:
@@ -73,10 +77,13 @@ class NPC:
                 if result is not None:
                     self.callbacks.append(result)
             if on_complete:
-                on_complete(messages)
-
-        logger.debug(f"Calling chatgpt.completion with messages: {self.messages}")
-        chatgpt.completion(self.messages, proxy=self.proxy, callback=on_completion)
+                on_complete(self.messages)
+        except Exception as e:
+            logger.error(f"Error in chatgpt.completion: {e}", exc_info=True)
+            response = "(There was an error in processing completion response. please try again)"
+            self.display_line_by_line(response)
+            if on_complete:
+                on_complete(self.messages)
 
     # Split a given text into sentences and display them one by one with a time delay
     def display_line_by_line(self, text):
