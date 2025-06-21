@@ -720,6 +720,16 @@ screen preferences():
 
         vbox:
 
+            vbox:
+                label "Text-to-Speech (TTS)"
+                textbutton "Enable TTS" action SetVariable("tts_enabled", True) 
+                textbutton "Disable TTS" action SetVariable("tts_enabled", False)
+                if tts_enabled:
+                    text "TTS is currently: Enabled" color "#6f6"
+                else:
+                    text "TTS is currently: Disabled" color "#f66"
+            null height 20
+
             hbox:
                 box_wrap True
 

@@ -4,6 +4,11 @@ __version__ = "0.0.1"
 import chatgpt
 import re
 import json
+import logging
+
+# Set up logging for Ren'Py (writes to log.txt)
+logger = logging.getLogger("npc")
+logger.setLevel(logging.DEBUG)
 
 # Define a Non-Player Character (NPC) class for a chatbot-based application
 class NPC:
@@ -49,38 +54,29 @@ class NPC:
         if display_message : self.display_line_by_line(message)
 
     # Process user input and add it to the message history
-    def user_says(self, user_input):
-
-        # Append the user input to the message history
-        self.messages.append(
-            {"role": "user", "content": user_input}
-        )
-
-        #Remove any weird characters
+    def user_says(self, user_input, on_complete=None):
+        self.messages.append({"role": "user", "content": user_input})
         user_input = re.sub(r'[^\w\s\'!\(\)\?\.\,\:\;\-]', '', user_input)
-
-        # Ensure the message history does not exceed the 10000-character limit
         while len(str(self.messages)) > 10000:
             self.messages.pop(1)
 
-        # Attempt to generate a response using the ChatGPT API
-        try:
-            self.messages = chatgpt.completion(self.messages, proxy=self.proxy)
+        def on_completion(messages):
+            last_msg = messages[-1]
+            if isinstance(last_msg, dict):
+                response = last_msg.get("content", "")
+            else:
+                response = str(last_msg)
+            logger.info(f"NPC response: {response}")
+            self.display_line_by_line(response)
+            for controller in self.controllers:
+                result = controller.control(self.messages, self.proxy)
+                if result is not None:
+                    self.callbacks.append(result)
+            if on_complete:
+                on_complete(messages)
 
-            # Extract the NPC's response from the generated messages
-            response = self.messages[-1]["content"]
-        except Exception as e:
-            # Display an error message if the API call fails
-            response = "(There was an error please try again)"
-
-        # Display the NPC's response line by line with a specified time delay between messages
-        self.display_line_by_line(response)
-
-        #Finally call the controllers
-        for controller in self.controllers:
-            result = controller.control(self.messages, self.proxy)
-            if result is not None:
-                self.callbacks.append(result)
+        logger.debug(f"Calling chatgpt.completion with messages: {self.messages}")
+        chatgpt.completion(self.messages, proxy=self.proxy, callback=on_completion)
 
     # Split a given text into sentences and display them one by one with a time delay
     def display_line_by_line(self, text):

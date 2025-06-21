@@ -1,51 +1,59 @@
 __version__ = "1.0.0"
 
-import requests
 import json
 import traceback
+import requests
 
-# Define the completion function that takes messages and an API key as input
-def completion(messages, api_key="", proxy=''):
-    # Set the API endpoint URL for ChatGPT completions
-    url = "http://localhost:11434/v1/chat/completions"
-
-    # If a proxy is set, then it should use that instead
-    #if proxy is not None and proxy != '':
-    #    url = proxy
-
-    # Set the headers for the API request, including the Content-Type and Authorization with the API key
+def completion(messages, api_key=None, proxy="", callback=None):
+    """
+    Synchronous: blocks until the response is received.
+    """
+    url = "http://localhost:11434/api/chat"
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}"
     }
-
-    # Set the data for the API request, including the model and the input messages
-    data = {
-        "model": "phi3:3.8b-mini-128k-instruct-q4_K_M",
+    payload = {
+        "model": "deepseek-r1:8b",
         "messages": messages,
-        "stream": False
+        "stream": False,
+        "max_tokens": 256,
     }
 
-    # Send the API request using the POST method, passing the headers and the data as JSON
-    response = requests.post(url, headers=headers, data=json.dumps(data))
+    try:
+        response = requests.post(
+            url,
+            json=payload,
+            headers=headers,
+            timeout=30
+        )
+        response.raise_for_status()
+    except Exception as e:
+        raise Exception(f"Network error: {e}")
 
-    # Check if the response status code is 200 (successful)
-    if response.status_code == 200:
-        try:
-            # Extract the message from the response JSON and append it to the messages list
-            completion = response.json()["choices"][0]["message"]
+    try:
+        resp_json = response.json()
+        # Ollama-style
+        if "message" in resp_json and isinstance(resp_json["message"], dict):
+            content = resp_json["message"].get("content", "")
+            assistant_msg = {"role": "assistant", "content": content}
+            messages.append(assistant_msg)
+        # Try plain content
+        elif "content" in resp_json:
+            assistant_msg = {"role": "assistant", "content": resp_json["content"]}
+            messages.append(assistant_msg)
+        # Try OpenAI-style as fallback
+        elif "choices" in resp_json and resp_json["choices"]:
+            completion = resp_json["choices"][0]["message"]
             messages.append(completion)
-            return messages  # Return the updated messages list
-        except json.JSONDecodeError as e:
-            # If there is a JSON decoding error, print the raw response for debugging
-            print("JSON decode error:", e)
-            print("Response content:", response.content)
-            raise Exception(f"Error: {response.status_code}, {response.text}")
-        except KeyError as e:
-            # If there is a KeyError, print the full response for debugging
-            print("Key error:", e)
-            print("Response JSON structure:", response.content)
-            raise Exception(f"Error: {response.status_code}, {response.text}")
-    else:
-        # If the status code is not 200, raise an exception with the error details
+        else:
+            print("Unknown response format:", resp_json)
+            raise Exception("Unknown response format")
+    except Exception as e:
+        print("Exception during response parsing:", e)
+        print("Response content:", response.content)
         raise Exception(f"Error: {response.status_code}, {response.text}")
+
+    # If a callback is provided, call it (for API compatibility, but not async)
+    if callback:
+        callback(messages)
+    return messages

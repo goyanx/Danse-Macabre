@@ -90,23 +90,19 @@ label garden:
     # Set the garden_visited flag to True
     $ garden_visited = True
 
-    # Begin the main conversation loop
-    while True:
-        # Get input from the user
-        $ user_input = renpy.input("What do you say ?", length=150)
+    jump garden_conversation
 
-        $ if user_input == "LOZDGV" : renpy.jump("act2")
+label garden_conversation:
+    $ user_input = renpy.input("What do you say ?", length=150)
 
-        # Process the user input and display the NPC's response
-        $ curr_npc.user_says(user_input)
+    if user_input == "LOZDGV":
+        jump act2
 
-        #After the conversation, the NPC has perhaps some callbacks that needs to be called
-        #There's a super super weird bug when we are inside a python "while" loop, the "Call" function doesn't work as intended
-        #But as long as we are inside a "Ren'Py" while loop, all is ok.
-        #So we have no choice but to do the loop here
-        #Yes I agree it's stupid but no choice
-        while curr_npc.callbacks:
-            $ renpy.call(curr_npc.callbacks.pop(0))
+    $ curr_npc.user_says(user_input)
 
-        #Lots of bugs with history, so we clear it each times
-        $ _history_list = []
+    while curr_npc.callbacks:
+        $ renpy.call(curr_npc.callbacks.pop(0))
+
+    $ _history_list = []
+
+    jump garden_conversation
