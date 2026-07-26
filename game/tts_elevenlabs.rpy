@@ -93,7 +93,11 @@ init python:
         if not os.path.exists(path):
             return
         try:
-            renpy.music.play(path.replace("\\", "/"), channel="voice", loop=False)
+            # Cached TTS lives outside the game archive, so pass the bytes to
+            # Ren'Py instead of treating the absolute path as an asset name.
+            with open(path, "rb") as f:
+                audio = renpy.audio.audio.AudioData(f.read(), os.path.basename(path))
+            renpy.music.play(audio, channel="voice", loop=False)
             store.tts_status = "Voice is playing."
         except Exception as e:
             store.tts_status = "Voice playback failed. Check log.txt."
@@ -298,7 +302,7 @@ init python:
             return
         _tts_start_cached(provider, "director", "This is a voice sample from The Glass House.")
 
-    def tts_character_callback(event, interact=True, what=None, cb_speaker=None, **kwargs):
+    def tts_character_callback(event, interact=True, what=None, speaker=None, **kwargs):
         if event != "begin":
             return
         if not interact or not what:
@@ -306,11 +310,11 @@ init python:
         if not getattr(store, "tts_enabled", False):
             return
 
-        if not cb_speaker:
+        # Character cb_* properties arrive without the cb_ prefix.
+        if not speaker:
             return
 
         provider = getattr(store, "tts_provider", "kokoro")
-        speaker = cb_speaker
         text = _tts_clean_text(what)
         if not text:
             return

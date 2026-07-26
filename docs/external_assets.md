@@ -12,11 +12,12 @@ This project includes externally sourced audio alongside the GPT-generated art a
 - Current game use: door chime in the opening arrival sequence.
 - Attribution is not required under CC0, but this credit is retained for provenance.
 
-## Dark Ambience Loop
+## Moil
 
-- Source: https://opengameart.org/content/dark-ambience-loop
-- Author: Iwan Gabovitch (qubodup)
-- License: CC-BY 3.0 / GPL 2.0 / GPL 3.0. This project uses the CC-BY 3.0 option.
-- Local imported file: `game/audio/music/glass_house_dark_ambience_loop.ogg`
-- Current game use: low-volume looping score throughout The Glass House.
-- Required attribution: "Dark Ambience Loop by Iwan Gabovitch, qubodup.net".
+- Source: https://opengameart.org/content/moil
+- Author: Ruskerdax
+- License: CC0 public domain
+- Local imported file: `game/audio/music/glass_house_noir_lounge.ogg`
+- Current game use: quiet noir-jazz underscore throughout The Glass House.
+- Instrumentation: Rhodes piano, jazz drums, baritone sax, and upright bass.
+- Attribution is not required under CC0, but this credit is retained for provenance.

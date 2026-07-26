@@ -19,6 +19,8 @@ saves/
 
 *.rpyc
 *.rpymc
+*.pyc
+__pycache__/
 
 
 # The log file and other misc things #

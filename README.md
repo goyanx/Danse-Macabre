@@ -10,7 +10,7 @@ The story follows a late-night visit to Lila and Malcolm Vale, a married couple 
 - Local Ollama powers the Director and dynamic NPC replies when available.
 - Deterministic fallback lines keep the game playable when Ollama is offline.
 - Character voice can use cached OpenAI TTS, ElevenLabs, local Kokoro, system voice fallback, or be disabled from Preferences.
-- ElevenLabs is used only for generated sound effects under `game/audio/sfx`.
+- ElevenLabs can provide optional character speech and generated sound effects under `game/audio/sfx`.
 
 ## Ollama
 
@@ -23,6 +23,8 @@ The local model adapter reads:
 ## Story Structure
 
 The Acts and progression beats are documented in `docs/the_glass_house_story_outline.md`.
+
+AI agents and authors should begin with `docs/ai_story_authoring_guide.md`. It documents the project architecture, narrative data contracts, dialogue rules, asset system, spoiler boundaries, async performance requirements, and the complete workflow for creating another story.
 
 Each beat has:
 

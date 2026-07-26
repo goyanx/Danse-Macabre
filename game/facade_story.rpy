@@ -178,10 +178,6 @@ label facade_intro:
         "The party is over, but their performance has not ended.",
     ]
 
-    stop music fadeout 1.0
-    $ renpy.random.shuffle(playlist)
-    play music playlist fadeout 1.0 fadein 1.0 volume 0.32
-
     scene bg facade street with dissolve
     play sound "audio/sfx/distant_party_fade.mp3"
     dm "The invitation arrived at 11:47 p.m., a single line beneath Lila Vale's name: Please come before Malcolm sobers up."

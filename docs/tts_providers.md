@@ -75,3 +75,7 @@ Optional overrides:
 - `GLASSHOUSE_VOICE_DIRECTOR_KOKORO`
 
 Kokoro starts one persistent local worker from the title screen, keeping the model loaded between lines. Generated WAV files are cached in the Ren'Py save directory under `tts_cache`.
+
+## Playback behavior
+
+Character `cb_speaker` properties are delivered to the shared callback as `speaker`. Cached files are wrapped in Ren'Py `AudioData` before playback because the cache is outside the game archive. Generation stays on a background thread, while audio playback is dispatched on Ren'Py's main thread.
