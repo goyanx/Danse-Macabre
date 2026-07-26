@@ -497,6 +497,12 @@ The main story and Extra Act read the UI timing values from the `chatgpt`
 adapter. Keep model work asynchronous and use non-hard Ren'Py pauses so the
 window continues processing events throughout the configured wait.
 
+Extra Act `Read the moment` is model-assisted, but still presentation-only.
+It passes `ExtraActState.moment_context()` into a short Director prompt and
+requires exactly one `Director:` line under 42 words. The fallback remains the
+authored mood/objective summary. Do not expose numeric relationship scores,
+future outcomes, hidden thresholds, or model reasoning in this line.
+
 ## 13. Director and Spoiler Safety
 
 The Director is a conversational hint system, not an all-knowing narrator.

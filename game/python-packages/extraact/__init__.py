@@ -136,6 +136,28 @@ class ExtraActState:
         }
         return summaries[mood]
 
+    def moment_context(self):
+        recent_events = [
+            "{}:{}".format(entry.get("location", self.location), entry.get("event", "conversation"))
+            for entry in self.history[-4:]
+        ]
+        readiness = "open"
+        if self.stage == "date":
+            readiness = "can_go_home" if self.can_go_home() else "needs_more_connection"
+        elif self.stage == "home":
+            readiness = "can_enter_bedroom" if self.can_enter_bedroom() else "needs_more_trust"
+
+        return {
+            "stage": self.stage,
+            "location": self.location,
+            "mood": self.mood_name(),
+            "objective": self.current_objective(),
+            "persona": self.persona_summary(),
+            "recent_events": ", ".join(recent_events) or "none",
+            "boundary_pressure": "yes" if self.boundary_violations else "no",
+            "readiness": readiness,
+        }
+
     def choose_date(self, location):
         if self.stage != "choose_date":
             return False

@@ -305,6 +305,16 @@ class ExtraActContractTests(unittest.TestCase):
         self.assertIn('response.lower().startswith("lila:")', self.source)
         self.assertIn("len(response.split()) > 36", self.source)
 
+    def test_extra_act_read_moment_uses_bounded_llm_insight(self):
+        self.assertIn("def extra_moment_messages(state):", self.source)
+        self.assertIn("state.moment_context()", self.source)
+        self.assertIn("extra_start_moment_job(extra_state)", self.source)
+        self.assertIn("Reading the room...", self.source)
+        self.assertIn('response.lower().startswith("director:")', self.source)
+        self.assertIn("len(response.split()) > 42", self.source)
+        self.assertIn("extra_moment_fallback", self.source)
+        self.assertIn("EXTRA_MODEL_WAIT_SECONDS", self.source)
+
     def test_extra_act_has_free_speech_and_open_ended_routes(self):
         for label in (
             "facade_extra_act",

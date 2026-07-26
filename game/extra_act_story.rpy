@@ -63,9 +63,40 @@ init python:
             },
         ]
 
+    def extra_moment_messages(state):
+        context = state.moment_context()
+        return [
+            {
+                "role": "system",
+                "content": (
+                    "Write one concise Director insight for the player reading Lila's state in a "
+                    "consensual noir-romance epilogue. Return exactly one line formatted "
+                    "'Director: line'. Use one or two complete sentences totaling no more than "
+                    "42 words. Ground the answer only in the supplied state. Mention her visible "
+                    "mood, what she seems to need now, and one useful next approach. No spoilers, "
+                    "scores, mechanics, preamble, postscript, analysis, reasoning, heading, stage "
+                    "direction, quotation marks, alternatives, or follow-up offer."
+                ),
+            },
+            {
+                "role": "user",
+                "content": (
+                    "Stage: {stage}\nLocation: {location}\nMood: {mood}\n"
+                    "Objective: {objective}\nPersona: {persona}\nRecent events: {recent_events}\n"
+                    "Boundary pressure: {boundary_pressure}\nReadiness: {readiness}"
+                ).format(**context),
+            },
+        ]
+
     def extra_start_reply_job(user_input, state):
         try:
             return chatgpt.completion_async(extra_reply_messages(user_input, state))
+        except Exception:
+            return None
+
+    def extra_start_moment_job(state):
+        try:
+            return chatgpt.completion_async(extra_moment_messages(state))
         except Exception:
             return None
 
@@ -94,6 +125,10 @@ init python:
         }
         return mood_lines[state.mood_name()]
 
+    def extra_moment_fallback(state):
+        context = state.moment_context()
+        return "Lila seems {mood}. {objective}".format(**context)
+
     def extra_reply_from_job(job, result, state):
         fallback = extra_reply_fallback(result, state)
         if job is None or not job.done:
@@ -106,6 +141,21 @@ init python:
             return fallback
         response = response.split(":", 1)[1].strip().strip('"')
         if not response or "[AI" in response or len(response.split()) > 36:
+            return fallback
+        return response
+
+    def extra_moment_from_job(job, state):
+        fallback = extra_moment_fallback(state)
+        if job is None or not job.done:
+            return fallback
+
+        response = job.assistant_content("").strip()
+        response = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL | re.IGNORECASE)
+        response = re.sub(r"\s+", " ", response).strip().strip('"')
+        if not response.lower().startswith("director:"):
+            return fallback
+        response = response.split(":", 1)[1].strip().strip('"')
+        if not response or "[AI" in response or len(response.split()) > 42:
             return fallback
         return response
 
@@ -152,6 +202,19 @@ label extra_process_turn(extra_input, location):
     if location != "bedroom":
         call extra_show_lila from _call_extra_show_lila
     lila "[extra_reply_line]"
+    return
+
+
+label extra_read_moment:
+    $ _extra_moment_job = extra_start_moment_job(extra_state)
+    $ _extra_moment_waited = 0.0
+    show screen thinking("Reading the room...")
+    while _extra_moment_job is not None and not _extra_moment_job.done and _extra_moment_waited < EXTRA_MODEL_WAIT_SECONDS:
+        $ renpy.pause(EXTRA_MODEL_POLL_SECONDS, hard=False)
+        $ _extra_moment_waited += EXTRA_MODEL_POLL_SECONDS
+    hide screen thinking
+    $ extra_moment_line = extra_moment_from_job(_extra_moment_job, extra_state)
+    dm "[extra_moment_line]"
     return
 
 
@@ -222,9 +285,7 @@ label extra_date_loop:
             $ extra_input = "Would you like to continue the evening at my apartment for one more drink? It is entirely your choice."
 
         "Read the moment":
-            $ extra_mood = extra_state.mood_name()
-            $ extra_objective = extra_state.current_objective()
-            dm "Lila seems [extra_mood]. [extra_objective]"
+            call extra_read_moment from _call_extra_date_read_moment
             jump extra_date_loop
 
         "End the date gracefully":
@@ -268,9 +329,7 @@ label extra_home_loop:
             $ extra_input = "Would you like to come with me to the bedroom and be closer? Only if it is your choice."
 
         "Read the moment":
-            $ extra_mood = extra_state.mood_name()
-            $ extra_objective = extra_state.current_objective()
-            dm "Lila seems [extra_mood]. [extra_objective]"
+            call extra_read_moment from _call_extra_home_read_moment
             jump extra_home_loop
 
         "End the evening with kindness":
@@ -313,6 +372,10 @@ label extra_bedroom_open_loop:
             dm "You let the silence become company instead of a test."
             lila "This is better. Nothing to solve for a minute."
 
+        "Read the moment":
+            call extra_read_moment from _call_extra_bedroom_read_moment
+            jump extra_bedroom_open_loop
+
         "Return to the living room":
             $ extra_state.enter_open_state("apartment")
             scene bg extra apartment with dissolve
@@ -336,6 +399,10 @@ label extra_open_home_loop:
         "Ask Lila what she wants next":
             $ extra_input = "What do you want next? I want to listen, not decide it for you."
             call extra_process_turn(extra_input, "apartment") from _call_extra_open_home_next
+
+        "Read the moment":
+            call extra_read_moment from _call_extra_open_home_read_moment
+            jump extra_open_home_loop
 
         "Return to the bedroom" if extra_bedroom_open:
             $ extra_state.enter_open_state("bedroom")

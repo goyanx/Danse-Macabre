@@ -97,6 +97,13 @@ the interface continues processing events while the completion runs. Keep job
 variables local and underscore-prefixed; never store an active job in `default`
 or persistent state.
 
+`Read the moment` uses the same async pattern with `extra_moment_messages`.
+It sends a compact `ExtraActState.moment_context()` snapshot, asks for one
+`Director:` line of no more than 42 words, and falls back to the deterministic
+mood/objective text if the model is unavailable or malformed. The insight may
+explain Lila's visible mood, present need, and a useful next approach, but it
+must not expose numeric scores, hidden mechanics, spoilers, or reasoning.
+
 The model prompt must preserve all of these constraints:
 
 - Both characters are adults.

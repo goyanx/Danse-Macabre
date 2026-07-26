@@ -99,6 +99,19 @@ class ExtraActStateTests(unittest.TestCase):
         self.assertEqual(restored.history, state.history)
         self.assertEqual(restored.mood_name(), state.mood_name())
 
+    def test_moment_context_is_compact_and_serializable(self):
+        state = self.make_date_state()
+        state.register_turn("I want to listen and understand what you want tonight.")
+
+        context = state.moment_context()
+        restored = pickle.loads(pickle.dumps(context))
+
+        self.assertEqual(restored["stage"], "date")
+        self.assertEqual(restored["mood"], state.mood_name())
+        self.assertIn("objective", restored)
+        self.assertIn("readiness", restored)
+        self.assertLessEqual(len(restored["recent_events"].split(", ")), 4)
+
 
 if __name__ == "__main__":
     unittest.main()
