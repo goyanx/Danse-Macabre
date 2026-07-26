@@ -72,6 +72,37 @@ class ChatAdapterTests(unittest.TestCase):
         self.assertNotIn("_thread", state)
         self.assertEqual(state["error"], "")
 
+    def test_ollama_request_defaults_to_fast_non_reasoning_dialogue(self):
+        response = mock.Mock()
+        response.raise_for_status.return_value = None
+        response.json.return_value = {
+            "message": {"role": "assistant", "content": "Lila: Stay."}
+        }
+
+        with (
+            mock.patch.object(chatgpt.requests, "post", return_value=response) as post,
+            mock.patch.object(chatgpt, "OLLAMA_THINK", False),
+            mock.patch.object(chatgpt, "OLLAMA_KEEP_ALIVE", "10m"),
+            mock.patch.dict(os.environ, {"OLLAMA_NUM_PREDICT": "96"}, clear=False),
+        ):
+            result = chatgpt._completion_ollama(
+                [{"role": "user", "content": "Stay with me."}]
+            )
+
+        payload = post.call_args.kwargs["json"]
+        self.assertFalse(payload["think"])
+        self.assertEqual(payload["keep_alive"], "10m")
+        self.assertEqual(payload["options"]["num_predict"], 96)
+        self.assertFalse(payload["stream"])
+        self.assertEqual(result[-1]["content"], "Lila: Stay.")
+
+    def test_boolean_environment_parser_accepts_explicit_values(self):
+        with mock.patch.dict(os.environ, {"TEST_LLM_BOOL": "yes"}, clear=False):
+            self.assertTrue(chatgpt._env_bool("TEST_LLM_BOOL", False))
+
+        with mock.patch.dict(os.environ, {"TEST_LLM_BOOL": "off"}, clear=False):
+            self.assertFalse(chatgpt._env_bool("TEST_LLM_BOOL", True))
+
 
 if __name__ == "__main__":
     unittest.main()

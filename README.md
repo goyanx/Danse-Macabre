@@ -18,8 +18,10 @@ The local model adapter reads:
 
 - `OLLAMA_BASE_URL`, defaulting to `http://localhost:11434`
 - `OLLAMA_MODEL`, defaulting to `qwen3:8b`
-- `OLLAMA_NUM_PREDICT`, defaulting to `256`
+- `OLLAMA_NUM_PREDICT`, defaulting to `96`
 - `OLLAMA_TIMEOUT_SECONDS`, defaulting to `30`
+- `OLLAMA_THINK`, defaulting to `false`
+- `OLLAMA_KEEP_ALIVE`, defaulting to `10m`
 
 ## LLM Provider Selection
 
@@ -48,8 +50,12 @@ The network and visible response windows are configurable:
 | --- | --- | --- |
 | `OLLAMA_TIMEOUT_SECONDS` | `30` | Timeout for each Ollama HTTP request |
 | `OPENAI_CHAT_TIMEOUT_SECONDS` | `30` | Timeout for an OpenAI chat request |
+| `OPENAI_CHAT_MAX_TOKENS` | `96` | Maximum OpenAI output tokens |
 | `GLASSHOUSE_LLM_WAIT_SECONDS` | `30` | Maximum time Ren'Py waits for a dynamic reply before using authored fallback dialogue |
 | `GLASSHOUSE_LLM_POLL_SECONDS` | `0.1` | Non-blocking UI polling interval while a completion runs |
+| `OLLAMA_NUM_PREDICT` | `96` | Maximum Ollama output tokens |
+| `OLLAMA_THINK` | `false` | Enables reasoning only when explicitly set to `true` |
+| `OLLAMA_KEEP_ALIVE` | `10m` | Keeps the local model loaded between conversations |
 
 The model request runs on a background thread. During the response window,
 Ren'Py continues processing display and input events through short non-hard
@@ -63,12 +69,20 @@ $env:GLASSHOUSE_LLM_PROVIDER = "ollama"
 $env:OLLAMA_MODEL = "richardyoung/qwen3.6-27b-abliterated:Q4_K_M"
 $env:GLASSHOUSE_LLM_WAIT_SECONDS = "30"
 $env:OLLAMA_TIMEOUT_SECONDS = "30"
+$env:OLLAMA_THINK = "false"
+$env:OLLAMA_NUM_PREDICT = "96"
 & "D:\renpy_installer\renpy-8.3.7-sdk\renpy.exe"
 ```
 
 Select the project in the launcher. Environment variables must be set before
 starting Ren'Py so the game process inherits them. Use `ollama list` to choose
 an exact model name available on the machine.
+
+Story prompts require one final in-character line, one or two complete
+sentences, and strict word limits. They explicitly forbid analysis, reasoning,
+headings, stage directions, preambles, postscripts, and alternative answers.
+Runtime validators reject malformed or overlong output and use authored
+fallback dialogue.
 
 ## Story Structure
 

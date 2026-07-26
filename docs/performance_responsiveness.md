@@ -20,6 +20,11 @@ This project avoids running local model calls on the Ren'Py UI thread.
   modules wait for a dynamic reply before using authored fallback dialogue.
 - `GLASSHOUSE_LLM_POLL_SECONDS`, default `0.1`, controls the non-blocking UI
   polling cadence during asynchronous model work.
+- `OLLAMA_NUM_PREDICT`, default `96`, and `OPENAI_CHAT_MAX_TOKENS`, default
+  `96`, cap short dialogue generation.
+- `OLLAMA_THINK`, default `false`, prevents reasoning traces from consuming the
+  response budget during normal character dialogue.
+- `OLLAMA_KEEP_ALIVE`, default `10m`, avoids repeatedly loading the local model.
 
 `facade_story.rpy` and `extra_act_story.rpy` read the shared UI values from the
 `chatgpt` adapter. Do not introduce a separate hard-coded story timeout.
@@ -30,4 +35,8 @@ This project avoids running local model calls on the Ren'Py UI thread.
 - Do not mutate Ren'Py store objects from worker threads.
 - Do not let model output decide whether a beat progresses. Use local beat rules first, then model text for atmosphere.
 - Do not wait indefinitely for Ollama. Always provide a deterministic fallback.
+- Do not enable reasoning for short NPC lines unless a specific feature truly
+  requires it.
+- Do not use a vague "be concise" instruction without a one-line format,
+  sentence count, word limit, and explicit ban on preambles and postscripts.
 - Do not call cloud TTS synchronously during dialogue display. Pre-generate authored lines, cache dynamic lines by speaker/text hash, and keep Ren'Py playback local.

@@ -15,10 +15,19 @@ def _positive_env_float(name, default):
     return value if value > 0 else float(default)
 
 
+def _env_bool(name, default):
+    value = os.environ.get(name)
+    if value is None:
+        return bool(default)
+    return value.strip().lower() in ("1", "true", "yes", "on")
+
+
 DEFAULT_TIMEOUT = _positive_env_float("OLLAMA_TIMEOUT_SECONDS", 30)
 OPENAI_TIMEOUT = _positive_env_float("OPENAI_CHAT_TIMEOUT_SECONDS", 30)
 LLM_UI_WAIT_SECONDS = _positive_env_float("GLASSHOUSE_LLM_WAIT_SECONDS", 30)
 LLM_UI_POLL_SECONDS = _positive_env_float("GLASSHOUSE_LLM_POLL_SECONDS", 0.1)
+OLLAMA_THINK = _env_bool("OLLAMA_THINK", False)
+OLLAMA_KEEP_ALIVE = os.environ.get("OLLAMA_KEEP_ALIVE", "10m")
 
 def _messages_to_prompt(messages):
     lines = []
@@ -93,7 +102,7 @@ def _completion_openai(messages, api_key, timeout=None):
             "model": model,
             "messages": messages,
             "temperature": 0.65,
-            "max_tokens": int(os.environ.get("OPENAI_CHAT_MAX_TOKENS", "160")),
+            "max_tokens": int(os.environ.get("OPENAI_CHAT_MAX_TOKENS", "96")),
         },
         timeout=timeout or OPENAI_TIMEOUT,
     )
@@ -118,8 +127,10 @@ def _completion_ollama(messages, api_key=None, timeout=None):
         "model": model,
         "messages": messages,
         "stream": False,
+        "think": OLLAMA_THINK,
+        "keep_alive": OLLAMA_KEEP_ALIVE,
         "options": {
-            "num_predict": int(os.environ.get("OLLAMA_NUM_PREDICT", "256")),
+            "num_predict": int(os.environ.get("OLLAMA_NUM_PREDICT", "96")),
         },
     }
 
@@ -133,6 +144,8 @@ def _completion_ollama(messages, api_key=None, timeout=None):
             "model": model,
             "prompt": _messages_to_prompt(messages),
             "stream": False,
+            "think": OLLAMA_THINK,
+            "keep_alive": OLLAMA_KEEP_ALIVE,
             "options": payload["options"],
         }
         try:

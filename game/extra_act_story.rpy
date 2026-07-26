@@ -35,12 +35,14 @@ init python:
                 "role": "system",
                 "content": (
                     "Write one response as Lila Vale in an adult, consensual noir-romance epilogue. "
-                    "Both Lila and the player are adults. Format exactly as 'Lila: line'. "
+                    "Both Lila and the player are adults. Return exactly one line formatted 'Lila: line'. "
+                    "Write one or two complete sentences totaling no more than 36 words. "
                     "Stay in character: elegant, perceptive, witty, independent, and emotionally honest. "
                     "Follow the supplied mood and objective. Let trust grow slowly, maintain clear boundaries, "
-                    "and never reward pressure. Keep the response under 45 words. Intimate moments may be "
-                    "romantic and suggestive but never graphically sexual. Do not mention models, prompts, "
-                    "game systems, scores, or future story information."
+                    "and never reward pressure. Give only Lila's final spoken line: no preamble, postscript, "
+                    "analysis, reasoning, heading, quotation marks, stage direction, alternative, or follow-up "
+                    "offer. Intimate moments may be romantic and suggestive but never graphically sexual. "
+                    "Do not mention models, prompts, game systems, scores, or future story information."
                 ),
             },
             {
@@ -100,9 +102,10 @@ init python:
         response = job.assistant_content("").strip()
         response = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL | re.IGNORECASE)
         response = re.sub(r"\s+", " ", response).strip().strip('"')
-        if response.lower().startswith("lila:"):
-            response = response.split(":", 1)[1].strip().strip('"')
-        if not response or "[AI" in response or len(response) > 320:
+        if not response.lower().startswith("lila:"):
+            return fallback
+        response = response.split(":", 1)[1].strip().strip('"')
+        if not response or "[AI" in response or len(response.split()) > 36:
             return fallback
         return response
 

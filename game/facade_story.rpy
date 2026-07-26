@@ -39,9 +39,12 @@ init python:
                 "role": "system",
                 "content": (
                     "You are writing one NPC response for an interactive chamber-drama mystery. "
-                    "Respond as either Lila or Malcolm. Format exactly as 'Lila: line' or 'Malcolm: line'. "
-                    "Keep it under 28 words. Stay tense, witty, wounded, and grounded in a modern townhouse. "
-                    "Do not reveal future beats or say you are an AI."
+                    "Return exactly one line formatted 'Lila: line' or 'Malcolm: line'. "
+                    "Write one or two complete sentences totaling no more than 28 words. "
+                    "Stay tense, witty, wounded, and grounded in a modern townhouse. "
+                    "Give only the character's final spoken line: no preamble, postscript, analysis, "
+                    "reasoning, heading, quotation marks, stage direction, alternative, or follow-up question. "
+                    "Do not reveal future beats or mention AI."
                 ),
             },
             {
@@ -124,7 +127,9 @@ init python:
                 "role": "system",
                 "content": (
                     "You are the Director, an in-world guide for a domestic mystery. "
-                    "Answer the player conversationally in no more than 45 words. "
+                    "Return only the final in-world answer in one or two complete sentences, "
+                    "totaling no more than 45 words. Do not add a preamble, postscript, heading, "
+                    "analysis, reasoning, stage direction, quotation marks, or alternative answer. "
                     "You may discuss controls, clarify facts already in the visible journal, "
                     "or offer an indirect observation about the current room. Never reveal a "
                     "future event, hidden identity, solution, upcoming room, or undiscovered fact. "
@@ -166,7 +171,7 @@ init python:
         response = job.assistant_content("").strip()
         response = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL | re.IGNORECASE)
         response = re.sub(r"\s+", " ", response).strip().strip('"')
-        if not response or "[AI" in response:
+        if not response or "[AI" in response or len(response.split()) > 45:
             return fallback
 
         discovered = set(dm_state.progress_log)

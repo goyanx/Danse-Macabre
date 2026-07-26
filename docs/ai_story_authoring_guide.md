@@ -468,6 +468,10 @@ Rules:
 
 - Copy prompt messages before handing them to a worker.
 - Use short output limits and explicit format constraints.
+- Require one final answer, one line, one or two complete sentences, and a
+  concrete word limit.
+- Explicitly forbid preambles, postscripts, analysis, reasoning, headings,
+  stage directions, quotation wrappers, and alternative answers.
 - Poll with `hard=False` so the UI remains responsive.
 - Stop waiting after a small fixed budget.
 - Never mutate Ren'Py store objects from the worker thread.
@@ -483,6 +487,10 @@ GLASSHOUSE_LLM_WAIT_SECONDS = 30
 GLASSHOUSE_LLM_POLL_SECONDS = 0.1
 OLLAMA_TIMEOUT_SECONDS = 30
 OPENAI_CHAT_TIMEOUT_SECONDS = 30
+OLLAMA_NUM_PREDICT = 96
+OPENAI_CHAT_MAX_TOKENS = 96
+OLLAMA_THINK = false
+OLLAMA_KEEP_ALIVE = 10m
 ```
 
 The main story and Extra Act read the UI timing values from the `chatgpt`

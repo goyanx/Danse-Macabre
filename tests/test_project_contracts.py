@@ -287,6 +287,23 @@ class ExtraActContractTests(unittest.TestCase):
             '_positive_env_float("GLASSHOUSE_LLM_POLL_SECONDS", 0.1)',
             adapter,
         )
+        self.assertIn('_env_bool("OLLAMA_THINK", False)', adapter)
+        self.assertIn('os.environ.get("OLLAMA_KEEP_ALIVE", "10m")', adapter)
+        self.assertIn('os.environ.get("OLLAMA_NUM_PREDICT", "96")', adapter)
+        self.assertIn('os.environ.get("OPENAI_CHAT_MAX_TOKENS", "96")', adapter)
+
+    def test_extra_act_prompt_forbids_response_padding(self):
+        for requirement in (
+            "Return exactly one line",
+            "no more than 36 words",
+            "no preamble, postscript",
+            "analysis, reasoning, heading",
+        ):
+            with self.subTest(requirement=requirement):
+                self.assertIn(requirement, self.source)
+
+        self.assertIn('response.lower().startswith("lila:")', self.source)
+        self.assertIn("len(response.split()) > 36", self.source)
 
     def test_extra_act_has_free_speech_and_open_ended_routes(self):
         for label in (
