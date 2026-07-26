@@ -79,3 +79,5 @@ Kokoro starts one persistent local worker from the title screen, keeping the mod
 ## Playback behavior
 
 Character `cb_speaker` properties are delivered to the shared callback as `speaker`. Cached files are wrapped in Ren'Py `AudioData` before playback because the cache is outside the game archive. Generation stays on a background thread, while audio playback is dispatched on Ren'Py's main thread.
+
+Generated speech uses the dedicated `generated_voice` channel with the standard `voice` mixer. Do not play generated speech on Ren'Py's built-in `voice` channel: the engine manages that channel for native `voice` statements and stops it when an interaction has no native voice file.

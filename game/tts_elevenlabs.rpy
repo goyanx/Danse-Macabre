@@ -16,6 +16,16 @@ init python:
     except Exception:
         requests = None
 
+    # Ren'Py owns the built-in "voice" channel and stops it when a say
+    # statement has no native voice file. Generated TTS needs an independent
+    # channel that still follows the user's Voice Volume preference.
+    renpy.music.register_channel(
+        "generated_voice",
+        mixer="voice",
+        loop=False,
+        stop_on_mute=True,
+    )
+
     if not hasattr(store, "tts_enabled"):
         store.tts_enabled = True
 
@@ -97,7 +107,7 @@ init python:
             # Ren'Py instead of treating the absolute path as an asset name.
             with open(path, "rb") as f:
                 audio = renpy.audio.audio.AudioData(f.read(), os.path.basename(path))
-            renpy.music.play(audio, channel="voice", loop=False)
+            renpy.music.play(audio, channel="generated_voice", loop=False)
             store.tts_status = "Voice is playing."
         except Exception as e:
             store.tts_status = "Voice playback failed. Check log.txt."
@@ -320,7 +330,7 @@ init python:
             return
 
         try:
-            renpy.music.stop(channel="voice")
+            renpy.music.stop(channel="generated_voice")
         except Exception:
             pass
 

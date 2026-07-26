@@ -458,8 +458,10 @@ TTS invariants:
 - Cache keys include provider, speaker, voice, model, and text.
 - Worker threads generate files but do not play audio.
 - Playback is dispatched to the Ren'Py main thread.
+- Generated speech plays on `generated_voice`, which uses the standard `voice`
+  mixer without Ren'Py's native voice-statement stop behavior.
 - Cached files outside the game archive are wrapped in `AudioData`.
-- Starting a new spoken line stops the previous voice-channel line.
+- Starting a new spoken line stops the previous generated-voice line.
 - TTS failures update visible status and do not block dialogue.
 
 When adding a character, add provider mappings in `TTS_VOICES` and define the
