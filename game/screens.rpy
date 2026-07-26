@@ -1,8 +1,15 @@
-﻿################################################################################
+################################################################################
 ## Initialization
 ################################################################################
 
 init offset = -1
+
+init python:
+    # Ensure `tts_enabled` exists in the store so the preferences screen
+    # can reference it without raising a NameError if options.rpy hasn't
+    # been loaded yet for some reason.
+    if not hasattr(store, 'tts_enabled'):
+        store.tts_enabled = True
 
 
 ################################################################################
@@ -228,9 +235,19 @@ style choice_vbox:
 style choice_button is default:
     properties gui.button_properties("choice_button")
     activate_sound "audio/click.mp3"
+    background Solid("#14232be8")
+    hover_background Solid("#24515be8")
+    insensitive_background Solid("#182027b8")
+    xminimum 1080
+    yminimum 76
+    left_padding 36
+    right_padding 36
+    top_padding 12
+    bottom_padding 12
 
 style choice_button_text is default:
     properties gui.button_text_properties("choice_button")
+    outlines [(2, "#05090c", 0, 0)]
 
 
 ## Quick Menu screen ###########################################################
@@ -721,13 +738,18 @@ screen preferences():
         vbox:
 
             vbox:
-                label "Text-to-Speech (TTS)"
-                textbutton "Enable TTS" action SetVariable("tts_enabled", True) 
-                textbutton "Disable TTS" action SetVariable("tts_enabled", False)
+                label "Voice"
+                textbutton "Kokoro Local" action [SetVariable("tts_enabled", True), SetVariable("tts_provider", "kokoro"), Preference("self voicing", "disable")]
+                textbutton "OpenAI" action [SetVariable("tts_enabled", True), SetVariable("tts_provider", "openai"), Preference("self voicing", "disable")]
+                textbutton "ElevenLabs" action [SetVariable("tts_enabled", True), SetVariable("tts_provider", "elevenlabs"), Preference("self voicing", "disable")]
+                textbutton "System Voice" action [SetVariable("tts_enabled", True), SetVariable("tts_provider", "system"), Preference("self voicing", "disable")]
+                textbutton "Off" action [SetVariable("tts_enabled", False), SetVariable("tts_provider", "off"), Preference("self voicing", "disable")]
+                textbutton "Test Voice" action Function(tts_play_sample)
                 if tts_enabled:
-                    text "TTS is currently: Enabled" color "#6f6"
+                    text "Voice provider: [tts_provider]" color "#6f6"
                 else:
-                    text "TTS is currently: Disabled" color "#f66"
+                    text "Voice provider: off" color "#f66"
+                text "[tts_status]" color "#d8e4ea" size 22
             null height 20
 
             hbox:
@@ -1523,8 +1545,8 @@ style slider_slider:
 ##
 ## This screen is used to display a "Thinking..." message.
 
-screen thinking():
+screen thinking(message="Thinking..."):
     frame:
         align (0.5, 0.1)
-        text "Thinking..." size 32
+        text message size 32
 

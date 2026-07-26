@@ -1,4 +1,4 @@
-﻿## This file contains options that can be changed to customize your game.
+## This file contains options that can be changed to customize your game.
 ##
 ## Lines beginning with two '#' marks are comments, and you shouldn't uncomment
 ## them. Lines beginning with a single '#' mark are commented-out code, and you
@@ -12,7 +12,7 @@
 ##
 ## The _() surrounding the string marks it as eligible for translation.
 
-define config.name = _("Danse Macabre")
+define config.name = _("The Glass House")
 
 
 ## Determines if the title given above is shown on the main menu screen. Set
@@ -23,7 +23,7 @@ define gui.show_name = True
 
 ## The version of the game.
 
-define config.version = "0.0.2"
+define config.version = "0.1.0"
 
 
 ## Text that is placed on the game's about screen. Place the text between the
@@ -37,7 +37,7 @@ define gui.about = _p("""
 ## distribution. This must be ASCII-only, and must not contain spaces, colons,
 ## or semicolons.
 
-define build.name = "DanseMacabre"
+define build.name = "TheGlassHouse"
 
 
 ## Sounds and music ############################################################
@@ -62,7 +62,7 @@ define config.has_voice = True
 ## the player is at the main menu. This file will continue playing into the
 ## game, until it is stopped or another file is played.
 
-define config.main_menu_music = "audio/music/Main Screen.mp3"
+define config.main_menu_music = "audio/sfx/distant_party_fade.mp3"
 
 
 ## Transitions #################################################################
@@ -130,6 +130,13 @@ default preferences.text_cps = 0
 
 default preferences.afm_time = 15
 
+## Text-to-Speech (TTS) enabled by default. The preferences screen and
+## TTS integration expect `tts_enabled` to exist in the store. Defining it
+## here ensures screens referencing it do not raise a NameError.
+default tts_enabled = True
+default tts_provider = "kokoro"
+default tts_status = "Choose Test Voice to verify the selected provider."
+
 
 ## Save directory ##############################################################
 ##
@@ -145,7 +152,7 @@ default preferences.afm_time = 15
 ## This generally should not be changed, and if it is, should always be a
 ## literal string, not an expression.
 
-define config.save_directory = "DanseMacabre-1679251356"
+define config.save_directory = "TheGlassHouse-1721916000"
 
 
 ## Icon ########################################################################
