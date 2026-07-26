@@ -246,6 +246,9 @@ screen facade_act_card(act_label, act_name):
     modal True
     zorder 100
 
+    timer FACADE_ACT_CARD_SECONDS action Return()
+    key "dismiss" action Return()
+
     add Solid("#050608B8")
 
     fixed:
@@ -286,6 +289,12 @@ screen facade_act_card(act_label, act_name):
                 font "DejaVuSans.ttf"
                 size 21
 
+    button:
+        xfill True
+        yfill True
+        background None
+        action Return()
+
 
 label facade_show_act_card(title):
     $ act_label, act_name = facade_act_card_parts(title)
@@ -296,10 +305,7 @@ label facade_show_act_card(title):
     hide screen facade_director_icon
     hide screen facade_journal_icon
     window hide
-    show screen facade_act_card(act_label, act_name)
-    with Dissolve(0.35)
-    $ renpy.pause(FACADE_ACT_CARD_SECONDS, hard=False)
-    hide screen facade_act_card
+    call screen facade_act_card(act_label, act_name)
     with Dissolve(0.3)
     if facade_map_was_visible:
         show screen facade_map_icon

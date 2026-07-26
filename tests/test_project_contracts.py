@@ -181,6 +181,20 @@ class StoryContractTests(unittest.TestCase):
         self.assertIn("screen facade_act_card(act_label, act_name):", self.story_source)
         self.assertIn("label facade_show_act_card(title):", self.story_source)
         self.assertIn("window hide", self.story_source)
+        self.assertIn(
+            "timer FACADE_ACT_CARD_SECONDS action Return()",
+            self.story_source,
+        )
+        self.assertIn('key "dismiss" action Return()', self.story_source)
+        self.assertRegex(
+            self.story_source,
+            r"button:\s+"
+            r"xfill True\s+"
+            r"yfill True\s+"
+            r"background None\s+"
+            r"action Return\(\)",
+        )
+        self.assertIn("call screen facade_act_card(act_label, act_name)", self.story_source)
 
         calls = re.findall(
             r"call facade_show_act_card\(facade_act_title\)",

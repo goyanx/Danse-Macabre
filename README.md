@@ -20,6 +20,39 @@ The local model adapter reads:
 - `OLLAMA_MODEL`, defaulting to `qwen3:8b`
 - `OLLAMA_NUM_PREDICT`, defaulting to `256`
 
+## LLM Provider Selection
+
+Dynamic NPC dialogue, the no-spoiler Director, and Extra Act `Speak Freely`
+responses use the asynchronous adapter in
+`game/python-packages/chatgpt/__init__.py`. Voice providers are separate and do
+not select the conversational LLM.
+
+`GLASSHOUSE_LLM_PROVIDER` controls provider selection:
+
+| Value | Behavior |
+| --- | --- |
+| `auto` | Default. Try OpenAI first when `OPENAI_API_KEY` is set, then try Ollama |
+| `openai` | Use only OpenAI; requires `OPENAI_API_KEY` |
+| `ollama` | Use only the configured local or remote Ollama server |
+
+OpenAI uses `https://api.openai.com/v1/chat/completions` with
+`OPENAI_CHAT_MODEL`, defaulting to `gpt-4.1-mini`. Ollama first calls
+`OLLAMA_BASE_URL/api/chat` and falls back to `/api/generate`. If the selected
+services are unavailable, the game displays deterministic authored dialogue
+instead of blocking progression.
+
+To force a locally installed Ollama model for the current PowerShell session:
+
+```powershell
+$env:GLASSHOUSE_LLM_PROVIDER = "ollama"
+$env:OLLAMA_MODEL = "richardyoung/qwen3.6-27b-abliterated:Q4_K_M"
+& "D:\renpy_installer\renpy-8.3.7-sdk\renpy.exe"
+```
+
+Select the project in the launcher. Environment variables must be set before
+starting Ren'Py so the game process inherits them. Use `ollama list` to choose
+an exact model name available on the machine.
+
 ## Story Structure
 
 The Acts and progression beats are documented in `docs/the_glass_house_story_outline.md`.
