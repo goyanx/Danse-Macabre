@@ -165,6 +165,18 @@ class StoryContractTests(unittest.TestCase):
         self.assertIn('"Study (locked -', self.story_source)
         self.assertIn("$ facade_sync_location_access()", self.story_source)
 
+    def test_ending_returns_directly_to_main_menu(self):
+        ending = re.search(
+            r"^label facade_ending:\s*(.*?)(?=^label |\Z)",
+            self.story_source,
+            re.MULTILINE | re.DOTALL,
+        )
+
+        self.assertIsNotNone(ending)
+        self.assertIn('\"END OF THE GLASS HOUSE\"', ending.group(1))
+        self.assertIn("MainMenu(confirm=False, save=False)()", ending.group(1))
+        self.assertNotRegex(ending.group(1), r"(?m)^\s+return\s*$")
+
 
 class TTSContractTests(unittest.TestCase):
     @classmethod

@@ -339,6 +339,10 @@ Callbacks must not:
 - Reference missing assets or labels.
 - Leave the player without a route back into a room loop.
 
+The final ending callback is the exception to the room-loop rule: after its last
+line, invoke `MainMenu(confirm=False, save=False)()` so nested callback returns
+cannot drop the player back into a completed story.
+
 When adding a callback, update all three places:
 
 1. The beat's `callback` field.

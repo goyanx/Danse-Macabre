@@ -557,4 +557,4 @@ label facade_ending:
     dm "You leave after midnight. Behind you, no glass breaks."
     dm "For the first time all evening, the silence belongs to no one."
     "END OF THE GLASS HOUSE"
-    return
+    $ MainMenu(confirm=False, save=False)()
