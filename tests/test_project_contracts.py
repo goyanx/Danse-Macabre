@@ -23,6 +23,14 @@ def png_dimensions(path):
     return struct.unpack(">II", header[16:24])
 
 
+def png_color_type(path):
+    with path.open("rb") as image:
+        header = image.read(26)
+    if len(header) < 26 or header[:8] != b"\x89PNG\r\n\x1a\n":
+        raise AssertionError("{} is not a valid PNG header.".format(path))
+    return header[25]
+
+
 def relative_luminance(hex_color):
     channels = [int(hex_color[index:index + 2], 16) / 255.0 for index in (1, 3, 5)]
     linear = [
@@ -106,6 +114,21 @@ class StoryContractTests(unittest.TestCase):
             with self.subTest(filename=filename):
                 self.assertTrue(path.is_file())
                 self.assertEqual(png_dimensions(path), (620, 1080))
+
+    def test_map_and_journal_icons_are_transparent_native_assets(self):
+        required = {
+            "icon journal.png",
+            "icon journal hovered.png",
+            "icon map.png",
+            "icon map hovered.png",
+        }
+
+        for filename in required:
+            path = GAME / "images" / filename
+            with self.subTest(filename=filename):
+                self.assertTrue(path.is_file())
+                self.assertEqual(png_dimensions(path), (800, 800))
+                self.assertEqual(png_color_type(path), 6)
 
     def test_ai_authoring_guide_is_discoverable(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")

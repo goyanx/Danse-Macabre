@@ -93,6 +93,32 @@ These realistic character sprites were generated with the built-in GPT image gen
 - Source prompt summary: realistic full-body visual novel sprite of Malcolm Vale, a charismatic early/mid-40s townhouse host in a midnight-blue suit and open-collar white shirt, refined but exhausted, cinematic realism, no text or logos.
 - Processing: generated on a flat `#00ff00` chroma-key background for the normal sprite, then expression edits were generated from the normal sprite. Backgrounds were converted to real alpha, cropped, cleaned, and scaled onto `620x1080` transparent canvases.
 
+## Active GPT-Generated UI Icons
+
+The map and journal controls use contemporary object icons matching the
+townhouse art rather than the superseded fantasy parchment assets.
+
+### Journal
+
+- Files: `game/images/icon journal.png`,
+  `game/images/icon journal hovered.png`
+- Source prompt summary: compact photorealistic charcoal-black leather case
+  journal with restrained brass fittings and a burgundy ribbon, photographed as
+  a premium modern-noir object with no text, symbols, fantasy ornament, or cast
+  shadow.
+
+### Map
+
+- Files: `game/images/icon map.png`, `game/images/icon map hovered.png`
+- Source prompt summary: compact photorealistic folded charcoal architectural
+  plan with thin brass townhouse floor-plan lines and one burgundy location
+  marker, with no text, numbers, compass rose, parchment, or fantasy imagery.
+
+Both base icons were generated on a flat `#00ff00` background. Hover-state edits
+preserve the composition while brightening brass edges and burgundy accents.
+The backgrounds were removed to real alpha and all four assets were normalized
+to `800x800` RGBA PNGs for the existing Ren'Py image-button contract.
+
 ## Notes
 
 The deterministic asset generator in `tools/generate_facade_assets.py` remains useful for reproducible placeholders and menu art. These GPT-generated backgrounds are the higher-fidelity active location art for the current playable build. The generator now skips existing `lila normal.png` and `malcolm normal.png` files so regenerating placeholders does not overwrite the final character sprites.
