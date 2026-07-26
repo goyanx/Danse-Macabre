@@ -476,17 +476,18 @@ Rules:
 - Reject empty, malformed, or service-unavailable output.
 - Always return authored fallback text.
 
-The current values are:
+The shared defaults are:
 
 ```text
-FACADE_MODEL_WAIT_SECONDS = 3.5
-FACADE_MODEL_POLL_SECONDS = 0.1
-OLLAMA_TIMEOUT_SECONDS = 8
-OPENAI_CHAT_TIMEOUT_SECONDS = 20
+GLASSHOUSE_LLM_WAIT_SECONDS = 30
+GLASSHOUSE_LLM_POLL_SECONDS = 0.1
+OLLAMA_TIMEOUT_SECONDS = 30
+OPENAI_CHAT_TIMEOUT_SECONDS = 30
 ```
 
-The network timeout may exceed the UI wait because a detached job may finish
-later, but the visible scene must already have fallen back.
+The main story and Extra Act read the UI timing values from the `chatgpt`
+adapter. Keep model work asynchronous and use non-hard Ren'Py pauses so the
+window continues processing events throughout the configured wait.
 
 ## 13. Director and Spoiler Safety
 

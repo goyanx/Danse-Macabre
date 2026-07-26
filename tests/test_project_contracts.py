@@ -252,12 +252,40 @@ class ExtraActContractTests(unittest.TestCase):
 
     def test_extra_act_model_work_is_optional_and_bounded(self):
         self.assertIn("chatgpt.completion_async", self.source)
-        self.assertIn("EXTRA_MODEL_WAIT_SECONDS = 3.5", self.source)
-        self.assertIn("EXTRA_MODEL_POLL_SECONDS = 0.1", self.source)
+        self.assertIn(
+            "EXTRA_MODEL_WAIT_SECONDS = chatgpt.LLM_UI_WAIT_SECONDS",
+            self.source,
+        )
+        self.assertIn(
+            "EXTRA_MODEL_POLL_SECONDS = chatgpt.LLM_UI_POLL_SECONDS",
+            self.source,
+        )
         self.assertIn("extra_reply_fallback", self.source)
         self.assertLess(
             self.source.index("extra_state.register_turn(extra_input, location)"),
             self.source.index("extra_start_reply_job(extra_input, extra_state)"),
+        )
+
+    def test_llm_timeouts_are_shared_configurable_defaults(self):
+        adapter = (
+            GAME / "python-packages" / "chatgpt" / "__init__.py"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn(
+            '_positive_env_float("OLLAMA_TIMEOUT_SECONDS", 30)',
+            adapter,
+        )
+        self.assertIn(
+            '_positive_env_float("OPENAI_CHAT_TIMEOUT_SECONDS", 30)',
+            adapter,
+        )
+        self.assertIn(
+            '_positive_env_float("GLASSHOUSE_LLM_WAIT_SECONDS", 30)',
+            adapter,
+        )
+        self.assertIn(
+            '_positive_env_float("GLASSHOUSE_LLM_POLL_SECONDS", 0.1)',
+            adapter,
         )
 
     def test_extra_act_has_free_speech_and_open_ended_routes(self):

@@ -19,6 +19,7 @@ The local model adapter reads:
 - `OLLAMA_BASE_URL`, defaulting to `http://localhost:11434`
 - `OLLAMA_MODEL`, defaulting to `qwen3:8b`
 - `OLLAMA_NUM_PREDICT`, defaulting to `256`
+- `OLLAMA_TIMEOUT_SECONDS`, defaulting to `30`
 
 ## LLM Provider Selection
 
@@ -41,11 +42,27 @@ OpenAI uses `https://api.openai.com/v1/chat/completions` with
 services are unavailable, the game displays deterministic authored dialogue
 instead of blocking progression.
 
+The network and visible response windows are configurable:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `OLLAMA_TIMEOUT_SECONDS` | `30` | Timeout for each Ollama HTTP request |
+| `OPENAI_CHAT_TIMEOUT_SECONDS` | `30` | Timeout for an OpenAI chat request |
+| `GLASSHOUSE_LLM_WAIT_SECONDS` | `30` | Maximum time Ren'Py waits for a dynamic reply before using authored fallback dialogue |
+| `GLASSHOUSE_LLM_POLL_SECONDS` | `0.1` | Non-blocking UI polling interval while a completion runs |
+
+The model request runs on a background thread. During the response window,
+Ren'Py continues processing display and input events through short non-hard
+pauses; story progression resumes when the model finishes or the configured
+wait expires.
+
 To force a locally installed Ollama model for the current PowerShell session:
 
 ```powershell
 $env:GLASSHOUSE_LLM_PROVIDER = "ollama"
 $env:OLLAMA_MODEL = "richardyoung/qwen3.6-27b-abliterated:Q4_K_M"
+$env:GLASSHOUSE_LLM_WAIT_SECONDS = "30"
+$env:OLLAMA_TIMEOUT_SECONDS = "30"
 & "D:\renpy_installer\renpy-8.3.7-sdk\renpy.exe"
 ```
 

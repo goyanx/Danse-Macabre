@@ -6,8 +6,19 @@ import os
 import requests
 import threading
 
-DEFAULT_TIMEOUT = float(os.environ.get("OLLAMA_TIMEOUT_SECONDS", "8"))
-OPENAI_TIMEOUT = float(os.environ.get("OPENAI_CHAT_TIMEOUT_SECONDS", "20"))
+
+def _positive_env_float(name, default):
+    try:
+        value = float(os.environ.get(name, str(default)))
+    except (TypeError, ValueError):
+        return float(default)
+    return value if value > 0 else float(default)
+
+
+DEFAULT_TIMEOUT = _positive_env_float("OLLAMA_TIMEOUT_SECONDS", 30)
+OPENAI_TIMEOUT = _positive_env_float("OPENAI_CHAT_TIMEOUT_SECONDS", 30)
+LLM_UI_WAIT_SECONDS = _positive_env_float("GLASSHOUSE_LLM_WAIT_SECONDS", 30)
+LLM_UI_POLL_SECONDS = _positive_env_float("GLASSHOUSE_LLM_POLL_SECONDS", 0.1)
 
 def _messages_to_prompt(messages):
     lines = []

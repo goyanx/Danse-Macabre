@@ -11,10 +11,11 @@ default extra_bedroom_open = False
 
 init python:
     import re
+    import chatgpt
     import extraact
 
-    EXTRA_MODEL_WAIT_SECONDS = 3.5
-    EXTRA_MODEL_POLL_SECONDS = 0.1
+    EXTRA_MODEL_WAIT_SECONDS = chatgpt.LLM_UI_WAIT_SECONDS
+    EXTRA_MODEL_POLL_SECONDS = chatgpt.LLM_UI_POLL_SECONDS
 
     def facade_extra_act_is_unlocked():
         if persistent.facade_extra_act_unlocked:
@@ -62,7 +63,6 @@ init python:
 
     def extra_start_reply_job(user_input, state):
         try:
-            import chatgpt
             return chatgpt.completion_async(extra_reply_messages(user_input, state))
         except Exception:
             return None

@@ -14,9 +14,15 @@ This project avoids running local model calls on the Ren'Py UI thread.
 
 ## Tunables
 
-- `OLLAMA_TIMEOUT_SECONDS`, default `8`, limits network calls in `game/python-packages/chatgpt/__init__.py`.
-- `FACADE_MODEL_WAIT_SECONDS`, default `3.5`, limits how long the script waits for a dynamic reply before falling back.
-- `FACADE_MODEL_POLL_SECONDS`, default `0.1`, controls UI polling cadence during async model work.
+- `OLLAMA_TIMEOUT_SECONDS`, default `30`, limits each Ollama HTTP request.
+- `OPENAI_CHAT_TIMEOUT_SECONDS`, default `30`, limits an OpenAI chat request.
+- `GLASSHOUSE_LLM_WAIT_SECONDS`, default `30`, controls how long all story
+  modules wait for a dynamic reply before using authored fallback dialogue.
+- `GLASSHOUSE_LLM_POLL_SECONDS`, default `0.1`, controls the non-blocking UI
+  polling cadence during asynchronous model work.
+
+`facade_story.rpy` and `extra_act_story.rpy` read the shared UI values from the
+`chatgpt` adapter. Do not introduce a separate hard-coded story timeout.
 
 ## Anti-Patterns To Avoid
 

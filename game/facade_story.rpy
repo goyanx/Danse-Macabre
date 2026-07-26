@@ -18,10 +18,11 @@ default facade_director_history = []
 
 init python:
     import re
+    import chatgpt
     import storydm
 
-    FACADE_MODEL_WAIT_SECONDS = 3.5
-    FACADE_MODEL_POLL_SECONDS = 0.1
+    FACADE_MODEL_WAIT_SECONDS = chatgpt.LLM_UI_WAIT_SECONDS
+    FACADE_MODEL_POLL_SECONDS = chatgpt.LLM_UI_POLL_SECONDS
     FACADE_ACT_CARD_SECONDS = 2.8
 
     def facade_reply_fallback(location):

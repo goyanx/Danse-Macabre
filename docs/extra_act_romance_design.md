@@ -86,14 +86,16 @@ Every turn follows this order:
 1. Display the player input.
 2. Call `ExtraActState.register_turn`.
 3. Start `chatgpt.completion_async` for optional wording.
-4. Poll in `0.1` second slices for at most `3.5` seconds with non-hard pauses.
+4. Poll in configurable `GLASSHOUSE_LLM_POLL_SECONDS` slices, default `0.1`,
+   for at most `GLASSHOUSE_LLM_WAIT_SECONDS`, default `30`, using non-hard
+   pauses.
 5. Validate the result and use a deterministic fallback if unavailable.
 6. Select Lila's expression and display her voiced Character line.
 
 This order is important. Progress succeeds even when Ollama is offline, and
-the interface remains responsive while the completion runs. Keep job variables
-local and underscore-prefixed; never store an active job in `default` or
-persistent state.
+the interface continues processing events while the completion runs. Keep job
+variables local and underscore-prefixed; never store an active job in `default`
+or persistent state.
 
 The model prompt must preserve all of these constraints:
 
