@@ -28,6 +28,16 @@ def find_renpy(explicit_path):
 def main():
     parser = argparse.ArgumentParser(description="Run The Glass House regression suite.")
     parser.add_argument(
+        "--skip-unit",
+        action="store_true",
+        help="Skip the offline Python tests.",
+    )
+    parser.add_argument(
+        "--voice-init",
+        action="store_true",
+        help="Boot Ren'Py and verify initialized generated-voice playback.",
+    )
+    parser.add_argument(
         "--lint",
         action="store_true",
         help="Run Ren'Py lint after the offline Python tests.",
@@ -38,26 +48,36 @@ def main():
     )
     args = parser.parse_args()
 
-    status = run(
-        [
-            sys.executable,
-            "-m",
-            "unittest",
-            "discover",
-            "-s",
-            "tests",
-            "-v",
-        ]
-    )
-    if status:
-        return status
+    if not args.skip_unit:
+        status = run(
+            [
+                sys.executable,
+                "-m",
+                "unittest",
+                "discover",
+                "-s",
+                "tests",
+                "-v",
+            ]
+        )
+        if status:
+            return status
 
-    if args.lint:
+    if args.voice_init or args.lint:
         renpy_exe = find_renpy(args.renpy_exe)
         if renpy_exe is None:
-            print("Ren'Py lint requested, but renpy.exe was not found.", file=sys.stderr)
+            print("A Ren'Py check was requested, but renpy.exe was not found.", file=sys.stderr)
             return 2
-        return run([str(renpy_exe), str(ROOT), "lint"])
+
+        if args.voice_init:
+            status = run(
+                [str(renpy_exe), str(ROOT), "test", "voice_initialization"]
+            )
+            if status:
+                return status
+
+        if args.lint:
+            return run([str(renpy_exe), str(ROOT), "lint"])
 
     return 0
 

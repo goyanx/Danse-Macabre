@@ -638,6 +638,12 @@ It covers:
 - Async completion behavior, fallback behavior, and save-safe job state.
 - Credential-like values in project text.
 
+The Ren'Py integration test boots the initialized application and plays
+`tests/fixtures/director_voice_smoke.wav` through the production `AudioData` and
+`generated_voice` path. It verifies decoding, voice-mixer state, and that
+playback survives an interaction cycle. It intentionally does not test live
+provider credentials, network availability, or local Kokoro installation.
+
 When fixing a regression, add or strengthen a test that would have caught it.
 Put deterministic story tests in `tests/test_storydm.py`, cross-file and asset
 contracts in `tests/test_project_contracts.py`, and model-adapter tests in
@@ -646,7 +652,7 @@ contracts in `tests/test_project_contracts.py`, and model-adapter tests in
 Run the suite and Ren'Py lint together with:
 
 ```powershell
-python tools\run_tests.py --lint
+python tools\run_tests.py --voice-init --lint
 ```
 
 ### Static checks

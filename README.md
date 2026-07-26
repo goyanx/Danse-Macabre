@@ -71,4 +71,14 @@ Run the same suite followed by Ren'Py lint:
 python tools\run_tests.py --lint
 ```
 
-The tests do not call cloud APIs, Ollama, or Kokoro. GitHub Actions runs the offline suite on every push and pull request.
+Boot Ren'Py, play the deterministic spoken fixture through the production voice
+path, and then run lint:
+
+```powershell
+python tools\run_tests.py --voice-init --lint
+```
+
+The tests do not call cloud APIs, Ollama, or Kokoro. The engine test verifies
+voice initialization, decoding, mixer state, and sustained playback without
+depending on provider availability. GitHub Actions runs both the offline suite
+and engine voice test on every push and pull request.

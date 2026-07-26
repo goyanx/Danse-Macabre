@@ -2,6 +2,7 @@ import re
 import struct
 import sys
 import unittest
+import wave
 from pathlib import Path
 
 
@@ -163,6 +164,26 @@ class TTSContractTests(unittest.TestCase):
 
     def test_external_cache_uses_audio_data(self):
         self.assertIn("renpy.audio.audio.AudioData", self.tts_source)
+
+    def test_voice_initialization_fixture_is_valid_spoken_audio(self):
+        fixture = ROOT / "tests" / "fixtures" / "director_voice_smoke.wav"
+
+        self.assertTrue(fixture.is_file())
+        with wave.open(str(fixture), "rb") as audio:
+            self.assertEqual(audio.getnchannels(), 1)
+            self.assertEqual(audio.getsampwidth(), 2)
+            self.assertEqual(audio.getframerate(), 24000)
+            self.assertGreater(audio.getnframes(), 24000)
+
+    def test_voice_initialization_test_uses_production_playback_path(self):
+        testcase_source = (GAME / "testcases.rpy").read_text(encoding="utf-8")
+
+        self.assertIn("testcase voice_initialization:", testcase_source)
+        self.assertIn("_tts_play_if_current(key, fixture)", testcase_source)
+        self.assertIn(
+            'renpy.music.is_playing(channel="generated_voice")',
+            testcase_source,
+        )
 
 
 class RepositoryHygieneTests(unittest.TestCase):

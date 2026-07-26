@@ -10,6 +10,8 @@ permissions:
 jobs:
   offline-tests:
     runs-on: windows-latest
+    env:
+      RENPY_VERSION: "8.3.7"
 
     steps:
       - name: Check out repository
@@ -27,3 +29,27 @@ jobs:
 
       - name: Run offline regression suite
         run: python tools/run_tests.py
+
+      - name: Cache Ren'Py SDK
+        id: cache-renpy
+        uses: actions/cache@v4
+        with:
+          path: .renpy-sdk
+          key: renpy-sdk-${{ runner.os }}-${{ env.RENPY_VERSION }}
+
+      - name: Download Ren'Py SDK
+        if: steps.cache-renpy.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          $archive = Join-Path $env:RUNNER_TEMP "renpy-sdk.zip"
+          $url = "https://www.renpy.org/dl/$env:RENPY_VERSION/renpy-$env:RENPY_VERSION-sdk.zip"
+          Invoke-WebRequest $url -OutFile $archive
+          Expand-Archive $archive -DestinationPath ".renpy-sdk"
+
+      - name: Boot Ren'Py and verify initialized voice playback
+        shell: pwsh
+        env:
+          RENPY_RENDERER: angle2
+        run: >
+          python tools/run_tests.py --skip-unit --voice-init
+          --renpy-exe ".renpy-sdk\renpy-${{ env.RENPY_VERSION }}-sdk\renpy.exe"
