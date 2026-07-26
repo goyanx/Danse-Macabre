@@ -355,6 +355,79 @@ When adding a callback, update all three places:
 2. The Ren'Py label implementation.
 3. The story outline documentation.
 
+### Cinematic act-card contract
+
+Act changes are structural presentation, not Director speech. Never announce an
+act with `dm "[act_title]"` or another Character line; that routes the title
+through the normal dialogue pane and TTS callback.
+
+The current implementation in `game/facade_story.rpy` has four parts:
+
+| Component | Responsibility |
+| --- | --- |
+| `FACADE_ACT_CARD_SECONDS` | Shared automatic hold duration; currently 2.8 seconds |
+| `facade_act_card_parts(title)` | Splits `Act II - The Polite War` into display-safe label and subtitle |
+| `facade_act_card` | Modal full-screen chapter-card screen and visual hierarchy |
+| `facade_show_act_card(title)` | Hides dialogue and controls, presents the card, then restores prior controls |
+
+The act title remains authored in `storydm.ACTS` using this format:
+
+```python
+{
+    "id": "act2_polite_war",
+    "title": "Act II - The Polite War",
+    ...
+}
+```
+
+When a progression result crosses an act boundary, `StoryDM._progress` advances
+the act before its callback executes. The callback must therefore refresh the
+title from the already-advanced state and call the presentation label:
+
+```renpy
+label newstory_to_act2:
+    $ newstory_act_title = newstory_dm.current_act()["title"]
+    # Authored transition dialogue or scene changes may occur here.
+    call newstory_show_act_card(newstory_act_title)
+    return
+```
+
+For the first act, show the card after the opening setup and before persistent
+map, journal, or Director controls are displayed.
+
+Presentation invariants:
+
+- Keep the current scene visible as background artwork; dim it rather than
+  replacing it with a dialogue or menu background.
+- Use a full-width cinematic band, not the normal say window or a floating card.
+- Keep the act number dominant and the subtitle secondary.
+- Use the story's established palette and typography. The current card uses
+  charcoal, muted brass, restrained burgundy, and neutral white.
+- Keep the screen modal while visible so controls beneath it cannot activate.
+- Snapshot which persistent controls are visible, hide them during the card,
+  and restore only those that were previously active.
+- Use `window hide` before presentation so no dialogue pane remains onscreen.
+- Permit automatic continuation and player dismissal; do not require a tiny
+  close button or trap the player in a hard pause.
+- Keep all dimensions stable at the native `1920x1080` canvas and verify text
+  fit for the longest act title.
+- Do not trigger TTS, LLM generation, network calls, progression, journal
+  updates, or save mutations from the card screen.
+
+When adding, removing, or reordering acts:
+
+1. Keep every act title in the `Act <Roman numeral> - <Subtitle>` format.
+2. Identify the callback that receives control immediately after each boundary.
+3. Refresh the story-specific `*_act_title` variable inside that callback.
+4. Call the story's shared `*_show_act_card` label exactly once.
+5. Remove any duplicate act title spoken through a Character.
+6. Run the offline contracts, initialized act-card engine test, and Ren'Py lint.
+7. Visually inspect at least the shortest and longest subtitles at `1920x1080`.
+
+The current contract test requires one `facade_show_act_card` call per act and
+forbids `dm "[facade_act_title]"`. The `act_card_initialization` Ren'Py testcase
+also renders the modal screen and asserts that it exists after engine startup.
+
 ## 12. LLM Integration
 
 `game/python-packages/chatgpt/__init__.py` supports:
@@ -647,18 +720,19 @@ It covers:
 - Act and beat schemas, IDs, ordered progression, wrong-room behavior, and nudges.
 - At least one working authored choice for every beat.
 - Callback labels, room labels, required assets, and native image dimensions.
+- One cinematic title-card call per act, with no act title in the dialogue pane.
 - Choice-text contrast in the idle state.
 - The generated TTS callback argument, cache loading, channel, and mixer contract.
 - Async completion behavior, fallback behavior, and save-safe job state.
 - Credential-like values in project text.
 
-The Ren'Py integration test boots the initialized application and plays
-`tests/fixtures/director_voice_smoke.wav` through the production `AudioData` and
-`generated_voice` path. It verifies decoding, voice-mixer state, and that
-playback survives an interaction cycle. It also performs a real save while an
-intentionally unpickleable lock occupies the transient TTS runtime container.
-It intentionally does not test live provider credentials, network availability,
-or local Kokoro installation.
+The Ren'Py integration checks boot the initialized application twice. The first
+renders `facade_act_card` and asserts that the modal chapter screen exists. The
+second plays `tests/fixtures/director_voice_smoke.wav` through the production
+`AudioData` and `generated_voice` path, verifies playback survives an interaction
+cycle, and performs a real save while an intentionally unpickleable lock
+occupies the transient TTS runtime container. They intentionally do not test
+live provider credentials, network availability, or local Kokoro installation.
 
 When fixing a regression, add or strengthen a test that would have caught it.
 Put deterministic story tests in `tests/test_storydm.py`, cross-file and asset
