@@ -50,6 +50,11 @@ jobs:
         shell: pwsh
         env:
           RENPY_RENDERER: angle2
-        run: >
-          python tools/run_tests.py --skip-unit --voice-init
-          --renpy-exe ".renpy-sdk\renpy-${{ env.RENPY_VERSION }}-sdk\renpy.exe"
+          SDL_AUDIODRIVER: dummy
+        run: |
+          python tools/run_tests.py --skip-unit --voice-init --renpy-exe ".renpy-sdk\renpy-${{ env.RENPY_VERSION }}-sdk\renpy.exe"
+          if ($LASTEXITCODE -ne 0) {
+            Get-Content log.txt -ErrorAction SilentlyContinue
+            Get-Content traceback.txt -ErrorAction SilentlyContinue
+            exit $LASTEXITCODE
+          }
