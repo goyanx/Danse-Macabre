@@ -133,6 +133,15 @@ class StoryContractTests(unittest.TestCase):
             4.5,
         )
 
+    def test_map_always_lists_every_playable_room(self):
+        for room in ("Salon", "Kitchen", "Study"):
+            with self.subTest(room=room):
+                self.assertIn('"{} (available)"'.format(room), self.story_source)
+
+        self.assertIn('"Kitchen (locked -', self.story_source)
+        self.assertIn('"Study (locked -', self.story_source)
+        self.assertIn("$ facade_sync_location_access()", self.story_source)
+
 
 class TTSContractTests(unittest.TestCase):
     @classmethod

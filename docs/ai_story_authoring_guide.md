@@ -245,10 +245,14 @@ label newstory_room_loop_library:
 Map rules:
 
 - Every playable location must appear visually or textually on the map.
+- Show locked destinations in the location menu with an actionable requirement;
+  do not hide them completely.
 - Every map destination must have a valid target label.
 - Locked rooms must explain the visible lead required to unlock them.
 - A callback that unlocks a room must set the corresponding state before the
   player is directed there.
+- Derive access from canonical completed beats and synchronize display booleans
+  when opening the map so older or inconsistent saves repair themselves.
 - Returning from the journal or Director should preserve the current room.
 
 ## 9. Choice and Free-Text Authoring

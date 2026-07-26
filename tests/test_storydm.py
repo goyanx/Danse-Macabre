@@ -51,6 +51,21 @@ class StorySchemaTests(unittest.TestCase):
 
 
 class StoryProgressionTests(unittest.TestCase):
+    def test_locations_unlock_from_canonical_story_progress(self):
+        dm = storydm.StoryDM()
+
+        self.assertEqual(dm.available_locations(), {"salon"})
+
+        for _, _, _, beat in iter_beats():
+            dm.register_player_input(beat["triggers"][0], beat["location"])
+            if beat["id"] == "find_the_third_glass":
+                self.assertEqual(dm.available_locations(), {"salon", "kitchen"})
+            if beat["id"] == "press_the_absent_guest":
+                self.assertEqual(
+                    dm.available_locations(),
+                    {"salon", "kitchen", "study"},
+                )
+
     def test_primary_trigger_completes_every_beat_in_order(self):
         dm = storydm.StoryDM()
         expected_callbacks = []

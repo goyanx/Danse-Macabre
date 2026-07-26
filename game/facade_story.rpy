@@ -83,6 +83,16 @@ init python:
         if result.get("journal") and result["journal"] not in journal:
             journal.append(result["journal"])
 
+    def facade_sync_location_access():
+        if facade_dm is None:
+            return
+
+        available = facade_dm.available_locations()
+        if "kitchen" in available:
+            store.facade_kitchen_known = True
+        if "study" in available:
+            store.facade_study_known = True
+
     def facade_current_outline():
         if facade_dm is None:
             return ""
@@ -279,12 +289,9 @@ label facade_director_conversation:
 
 
 label facade_open_map:
+    $ facade_sync_location_access()
     scene bg facade map
     nvl clear
-    if not facade_kitchen_known:
-        "(Kitchen - locked. Follow the untouched-glass lead.)"
-    if not facade_study_known:
-        "(Study - locked. Uncover where the private story was written.)"
     menu:
         "Where should I go?"
 
@@ -294,8 +301,16 @@ label facade_open_map:
         "Kitchen (available)" if facade_kitchen_known:
             jump facade_kitchen
 
+        "Kitchen (locked - follow the untouched-glass lead)" if not facade_kitchen_known:
+            dm "The kitchen is still part of their performance. First, inspect the untouched glass in the salon."
+            jump facade_open_map
+
         "Study (available)" if facade_study_known:
             jump facade_study
+
+        "Study (locked - uncover where the private story was written)" if not facade_study_known:
+            dm "The study remains private. Press them about the absent guest and the third glass first."
+            jump facade_open_map
 
 
 label facade_salon:

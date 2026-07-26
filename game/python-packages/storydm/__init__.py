@@ -3,6 +3,12 @@ __version__ = "0.1.0"
 import re
 
 
+LOCATION_UNLOCK_BEATS = {
+    "kitchen": "find_the_third_glass",
+    "study": "press_the_absent_guest",
+}
+
+
 ACTS = [
     {
         "id": "act1_arrival",
@@ -158,6 +164,14 @@ class StoryDM:
 
     def current_beat(self):
         return self.current_act()["beats"][self.beat_index]
+
+    def available_locations(self):
+        completed = set(self.progress_log)
+        locations = {"salon"}
+        for location, beat_id in LOCATION_UNLOCK_BEATS.items():
+            if beat_id in completed:
+                locations.add(location)
+        return locations
 
     def outline(self):
         return "\n".join([
