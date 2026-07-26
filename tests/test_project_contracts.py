@@ -190,6 +190,88 @@ class StoryContractTests(unittest.TestCase):
         self.assertNotIn('dm "[facade_act_title]"', self.story_source)
 
 
+class ExtraActContractTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.source = (GAME / "extra_act_story.rpy").read_text(encoding="utf-8")
+        cls.main_story = (GAME / "facade_story.rpy").read_text(encoding="utf-8")
+        cls.screens = (GAME / "screens.rpy").read_text(encoding="utf-8")
+
+    def test_extra_act_unlock_is_persistent_and_supports_prior_completions(self):
+        self.assertIn(
+            "persistent.facade_extra_act_unlocked = True",
+            self.main_story,
+        )
+        self.assertIn("renpy.save_persistent()", self.main_story)
+        self.assertIn('renpy.seen_label("facade_ending")', self.source)
+        self.assertIn("if facade_extra_act_is_unlocked():", self.screens)
+        self.assertIn(
+            'textbutton _("Extra Act -1") action Start("facade_extra_act")',
+            self.screens,
+        )
+
+    def test_extra_act_assets_have_runtime_dimensions_and_alpha(self):
+        backgrounds = (
+            "bg extra jazz lounge.png",
+            "bg extra rooftop.png",
+            "bg extra apartment.png",
+            "bg extra bedroom.png",
+        )
+        sprites = (
+            "lila club neutral.png",
+            "lila club warm.png",
+            "lila club guarded.png",
+        )
+
+        for filename in backgrounds:
+            with self.subTest(filename=filename):
+                path = GAME / "images" / filename
+                self.assertTrue(path.is_file())
+                self.assertEqual(png_dimensions(path), (1920, 1080))
+
+        for filename in sprites:
+            with self.subTest(filename=filename):
+                path = GAME / "images" / filename
+                self.assertTrue(path.is_file())
+                self.assertEqual(png_dimensions(path), (620, 1080))
+                self.assertEqual(png_color_type(path), 6)
+
+    def test_extra_act_model_work_is_optional_and_bounded(self):
+        self.assertIn("chatgpt.completion_async", self.source)
+        self.assertIn("EXTRA_MODEL_WAIT_SECONDS = 3.5", self.source)
+        self.assertIn("EXTRA_MODEL_POLL_SECONDS = 0.1", self.source)
+        self.assertIn("extra_reply_fallback", self.source)
+        self.assertLess(
+            self.source.index("extra_state.register_turn(extra_input, location)"),
+            self.source.index("extra_start_reply_job(extra_input, extra_state)"),
+        )
+
+    def test_extra_act_has_free_speech_and_open_ended_routes(self):
+        for label in (
+            "facade_extra_act",
+            "extra_date_loop",
+            "extra_home_loop",
+            "extra_bedroom_open_loop",
+            "extra_open_home_loop",
+        ):
+            with self.subTest(label=label):
+                self.assertIn("label {}:".format(label), self.source)
+
+        self.assertGreaterEqual(self.source.count('"Speak freely"'), 4)
+        self.assertIn('extra_state.enter_open_state("bedroom")', self.source)
+        self.assertIn('scene bg extra bedroom with dissolve', self.source)
+        self.assertIn("hide lila with dissolve", self.source)
+
+    def test_extra_act_engine_initializes_inside_renpy(self):
+        testcase_source = (GAME / "testcases.rpy").read_text(encoding="utf-8")
+        runner_source = (ROOT / "tools" / "run_tests.py").read_text(encoding="utf-8")
+
+        self.assertIn("testcase extra_act_initialization:", testcase_source)
+        self.assertIn("extraact.ExtraActState()", testcase_source)
+        self.assertIn("renpy.save(extra_slot", testcase_source)
+        self.assertIn('"extra_act_initialization"', runner_source)
+
+
 class TTSContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

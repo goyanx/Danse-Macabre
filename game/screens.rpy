@@ -318,6 +318,10 @@ screen navigation():
 
             textbutton _("Start") action Start()
 
+            if facade_extra_act_is_unlocked():
+
+                textbutton _("Extra Act -1") action Start("facade_extra_act")
+
         else:
 
             textbutton _("History") action ShowMenu("history")

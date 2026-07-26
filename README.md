@@ -36,6 +36,12 @@ Each beat has:
 
 The Director watches for repeated non-progress turns and offers a subtle nudge toward the current beat. Players can also press the in-game Director button for help.
 
+Completing the mystery unlocks `Extra Act -1`, an adult, consensual,
+non-graphic romance epilogue with deterministic relationship state, two date
+venues, Lila expression changes, an apartment and bedroom, optional free-text
+conversation, and an open-ended continuation. Its design and extension rules
+are documented in `docs/extra_act_romance_design.md`.
+
 ## Assets
 
 High-fidelity room backgrounds were generated with the built-in GPT image generation flow and are documented in `docs/gpt_imagegen_assets.md`.

@@ -93,6 +93,35 @@ These realistic character sprites were generated with the built-in GPT image gen
 - Source prompt summary: realistic full-body visual novel sprite of Malcolm Vale, a charismatic early/mid-40s townhouse host in a midnight-blue suit and open-collar white shirt, refined but exhausted, cinematic realism, no text or logos.
 - Processing: generated on a flat `#00ff00` chroma-key background for the normal sprite, then expression edits were generated from the normal sprite. Backgrounds were converted to real alpha, cropped, cleaned, and scaled onto `620x1080` transparent canvases.
 
+### Extra Act -1: Lila Club Wardrobe
+
+- Files: `game/images/lila club neutral.png`,
+  `game/images/lila club warm.png`, and
+  `game/images/lila club guarded.png`
+- Source prompt summary: identity-preserving adult Lila Vale in an asymmetric
+  black satin cocktail dress with muted burgundy lining, sheer tights, and
+  black heels; full-body cinematic realism on a flat green chroma-key
+  background.
+- Expression variants: neutral/curious, warm/knowing, and guarded/skeptical.
+- Processing: flat backgrounds were converted to alpha, subjects were cropped
+  and scaled proportionally, then bottom-aligned on `620x1080` RGBA canvases.
+
+## Extra Act -1 Backgrounds
+
+- `game/images/bg extra jazz lounge.png`: the Bellweather, an intimate black
+  marble, brass, and burgundy lounge with an upright piano.
+- `game/images/bg extra rooftop.png`: a private glass rooftop conservatory
+  above a rain-lit city.
+- `game/images/bg extra apartment.png`: the player's lived-in modern apartment
+  with dark oak, charcoal upholstery, cognac leather, records, and a city view.
+- `game/images/bg extra bedroom.png`: the same apartment's walnut and charcoal
+  bedroom with warm brass lamps and rain-dark windows.
+
+The four backgrounds were generated with the built-in GPT image generation
+flow as photorealistic `16:9` visual-novel environments. Prompts required no
+people, text, logos, watermarks, or explicit props, and reserved the lower third
+for dialogue. Outputs were normalized to `1920x1080` RGB PNGs.
+
 ## Active GPT-Generated UI Icons
 
 The map and journal controls use contemporary object icons matching the

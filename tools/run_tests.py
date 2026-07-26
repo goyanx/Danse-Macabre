@@ -70,7 +70,11 @@ def main():
             return 2
 
         if args.voice_init:
-            for testcase in ("act_card_initialization", "voice_initialization"):
+            for testcase in (
+                "act_card_initialization",
+                "extra_act_initialization",
+                "voice_initialization",
+            ):
                 status = run([str(renpy_exe), str(ROOT), "test", testcase])
                 if status:
                     return status

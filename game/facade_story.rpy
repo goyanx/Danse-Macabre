@@ -648,4 +648,7 @@ label facade_ending:
     dm "You leave after midnight. Behind you, no glass breaks."
     dm "For the first time all evening, the silence belongs to no one."
     "END OF THE GLASS HOUSE"
+    $ persistent.facade_extra_act_unlocked = True
+    $ renpy.save_persistent()
+    "EXTRA ACT -1 UNLOCKED"
     $ MainMenu(confirm=False, save=False)()

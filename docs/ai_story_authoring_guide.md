@@ -31,11 +31,14 @@ An AI starting work should read files in this order:
 3. `docs/the_glass_house_story_outline.md`
 4. `game/python-packages/storydm/__init__.py`
 5. `game/facade_story.rpy`
-6. `game/script.rpy`
-7. `game/screens.rpy`
-8. `game/tts_elevenlabs.rpy`
-9. `game/python-packages/chatgpt/__init__.py`
-10. Asset-specific files under `docs/`
+6. `docs/extra_act_romance_design.md`
+7. `game/python-packages/extraact/__init__.py`
+8. `game/extra_act_story.rpy`
+9. `game/script.rpy`
+10. `game/screens.rpy`
+11. `game/tts_elevenlabs.rpy`
+12. `game/python-packages/chatgpt/__init__.py`
+13. Asset-specific files under `docs/`
 
 Treat executable code as the source of truth when a document and implementation
 disagree. Update both in the same change.
@@ -47,6 +50,8 @@ disagree. Update both in the same change.
 | `game/script.rpy` | Global entry point, playlist, and transition into the active story |
 | `game/facade_story.rpy` | Characters, save state, room flow, choices, dialogue, callbacks, Director UI, and story presentation |
 | `game/python-packages/storydm/__init__.py` | Deterministic acts, beats, trigger matching, progress state, and authored nudges |
+| `game/extra_act_story.rpy` | Unlockable romance epilogue scenes, choices, optional Lila replies, and open-ended loops |
+| `game/python-packages/extraact/__init__.py` | Serializable mood, objectives, consent boundaries, and romance-stage progression |
 | `game/python-packages/chatgpt/__init__.py` | OpenAI/Ollama adapter and asynchronous completion jobs |
 | `game/tts_elevenlabs.rpy` | TTS providers, cache, background workers, and Ren'Py voice playback |
 | `game/screens.rpy` | Dialogue, choices, menus, preferences, save/load, and thinking overlay |
@@ -90,7 +95,9 @@ chapter-card treatment for major structural transitions.
 The major ownership boundary is:
 
 - `storydm` decides **whether and how progress occurred**.
+- `extraact` decides **whether romance-stage progression is earned and consensual**.
 - `facade_story.rpy` decides **what the player sees and hears**.
+- `extra_act_story.rpy` presents the optional epilogue and its open state.
 - `chatgpt` decides **optional wording only**.
 - `tts_elevenlabs.rpy` decides **how displayed dialogue becomes audio**.
 
@@ -123,6 +130,8 @@ Guidelines:
 - `CompletionJob.__getstate__` deliberately removes worker threads from saves.
 - Keep history bounded. Director history is trimmed to the latest eight entries.
 - Initialize the journal and `StoryDM` in the story introduction.
+- Keep unlock flags in `persistent`, but keep replay-specific relationship state
+  in ordinary `default` variables.
 - Use a new `config.save_directory` when creating a separate game identity and
   old saves are structurally incompatible.
 
@@ -139,6 +148,10 @@ last_location
 
 Changing the order or meaning of beats can affect existing saves. For a major
 rewrite, either add migration logic or intentionally change the save directory.
+
+The romance epilogue follows the same rule. `ExtraActState` is deliberately
+pickle-safe and contains no process, lock, thread, or completion-job objects.
+See `docs/extra_act_romance_design.md` before changing its stages or thresholds.
 
 ## 6. Act and Beat Data Contract
 

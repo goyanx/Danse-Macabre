@@ -33,6 +33,19 @@ testcase act_card_initialization:
     run Quit(confirm=False)
 
 
+testcase extra_act_initialization:
+    $ extra_state = extraact.ExtraActState()
+    $ extra_result = extra_state.register_turn("Would you have a drink with me? No pressure; it is your choice.")
+    assert extra_result["event"] == "date_accepted"
+    assert extra_state.choose_date("jazz_lounge")
+    assert extra_state.current_objective()
+    $ extra_slot = "_extra_act_runtime_smoke"
+    $ renpy.save(extra_slot, extra_info="Extra act runtime smoke test")
+    assert renpy.can_load(extra_slot)
+    $ renpy.unlink_save(extra_slot)
+    run Quit(confirm=False)
+
+
 testcase voice_initialization:
     $ _preferences.set_volume("voice", 1.0)
     $ _preferences.mute["voice"] = False
