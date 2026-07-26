@@ -35,7 +35,7 @@ def main():
     parser.add_argument(
         "--voice-init",
         action="store_true",
-        help="Boot Ren'Py and verify initialized generated-voice playback.",
+        help="Boot Ren'Py and verify initialized UI and generated-voice playback.",
     )
     parser.add_argument(
         "--lint",
@@ -70,11 +70,10 @@ def main():
             return 2
 
         if args.voice_init:
-            status = run(
-                [str(renpy_exe), str(ROOT), "test", "voice_initialization"]
-            )
-            if status:
-                return status
+            for testcase in ("act_card_initialization", "voice_initialization"):
+                status = run([str(renpy_exe), str(ROOT), "test", testcase])
+                if status:
+                    return status
 
         if args.lint:
             return run([str(renpy_exe), str(ROOT), "lint"])

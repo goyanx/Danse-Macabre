@@ -22,6 +22,7 @@ init python:
 
     FACADE_MODEL_WAIT_SECONDS = 3.5
     FACADE_MODEL_POLL_SECONDS = 0.1
+    FACADE_ACT_CARD_SECONDS = 2.8
 
     def facade_reply_fallback(location):
         fallbacks = {
@@ -92,6 +93,12 @@ init python:
             store.facade_kitchen_known = True
         if "study" in available:
             store.facade_study_known = True
+
+    def facade_act_card_parts(title):
+        parts = (title or "").split(" - ", 1)
+        if len(parts) == 2:
+            return parts[0].upper(), parts[1].upper()
+        return "NEW ACT", (title or "").upper()
 
     def facade_current_outline():
         if facade_dm is None:
@@ -212,10 +219,95 @@ label facade_show_outline:
 
 
 label facade_act1:
+    call facade_show_act_card(facade_act_title) from _call_facade_show_act1_card
     show screen facade_map_icon
     show screen facade_director_icon
     show screen facade_journal_icon
     jump facade_salon
+
+
+transform facade_act_card_reveal:
+    alpha 0.0
+    on show:
+        linear 0.4 alpha 1.0
+
+
+transform facade_act_title_reveal:
+    alpha 0.0
+    yoffset 18
+    pause 0.12
+    parallel:
+        linear 0.45 alpha 1.0
+    parallel:
+        easeout 0.45 yoffset 0
+
+
+screen facade_act_card(act_label, act_name):
+    modal True
+    zorder 100
+
+    add Solid("#050608B8")
+
+    fixed:
+        xfill True
+        ysize 390
+        yalign 0.5
+        at facade_act_card_reveal
+
+        add Solid("#0B0D10F2")
+        add Solid("#B58A4A") xsize 1320 ysize 2 xalign 0.5 ypos 0
+        add Solid("#B58A4A") xsize 1320 ysize 2 xalign 0.5 yalign 1.0
+        add Solid("#701C35") xsize 180 ysize 5 xalign 0.5 ypos 31
+
+        vbox:
+            xalign 0.5
+            yalign 0.5
+            spacing 17
+            at facade_act_title_reveal
+
+            text act_label:
+                xalign 0.5
+                color "#D2AA68"
+                font "DejaVuSans-Bold.ttf"
+                size 96
+                outlines [(2, "#00000080", 0, 2)]
+
+            text act_name:
+                xalign 0.5
+                text_align 0.5
+                color "#F2EEE7"
+                font "DejaVuSans.ttf"
+                size 43
+                xmaximum 1420
+
+            text "THE GLASS HOUSE":
+                xalign 0.5
+                color "#B7AFA4"
+                font "DejaVuSans.ttf"
+                size 21
+
+
+label facade_show_act_card(title):
+    $ act_label, act_name = facade_act_card_parts(title)
+    $ facade_map_was_visible = renpy.get_screen("facade_map_icon") is not None
+    $ facade_director_was_visible = renpy.get_screen("facade_director_icon") is not None
+    $ facade_journal_was_visible = renpy.get_screen("facade_journal_icon") is not None
+    hide screen facade_map_icon
+    hide screen facade_director_icon
+    hide screen facade_journal_icon
+    window hide
+    show screen facade_act_card(act_label, act_name)
+    with Dissolve(0.35)
+    $ renpy.pause(FACADE_ACT_CARD_SECONDS, hard=False)
+    hide screen facade_act_card
+    with Dissolve(0.3)
+    if facade_map_was_visible:
+        show screen facade_map_icon
+    if facade_director_was_visible:
+        show screen facade_director_icon
+    if facade_journal_was_visible:
+        show screen facade_journal_icon
+    return
 
 
 screen facade_map_icon():
@@ -321,7 +413,6 @@ label facade_salon:
 
     if not facade_salon_visited:
         $ facade_salon_visited = True
-        dm "[facade_act_title]"
         lila "You came. I told Malcolm you would, and he told me I was dramatizing the human soul again."
         malcolm "I said you were dramatizing the doorbell. Different charge, lighter sentence."
         dm "The salon is beautiful in the way a confession can be beautiful: expensive, precise, and full of omissions."
@@ -482,7 +573,7 @@ label facade_to_act2:
     malcolm "To absent friends."
     lila "Do not."
     dm "The name Vivian hangs above the toast, unspoken and unmistakable."
-    dm "[facade_act_title]"
+    call facade_show_act_card(facade_act_title) from _call_facade_show_act2_card
     return
 
 
@@ -511,7 +602,7 @@ label facade_to_act3:
     malcolm "Lila."
     lila "No, let our guest find the study. Let the house tell the story for once."
     "(New room unlocked: Study)"
-    dm "[facade_act_title]"
+    call facade_show_act_card(facade_act_title) from _call_facade_show_act3_card
     jump facade_study
 
 
@@ -538,7 +629,7 @@ label facade_to_act4:
     show malcolm wounded at right with dissolve
     lila "If the game is over, what are we supposed to do with the rest of the night?"
     malcolm "Perhaps live through it without keeping score."
-    dm "[facade_act_title]"
+    call facade_show_act_card(facade_act_title) from _call_facade_show_act4_card
     return
 
 

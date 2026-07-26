@@ -46,7 +46,7 @@ jobs:
           Invoke-WebRequest $url -OutFile $archive
           Expand-Archive $archive -DestinationPath ".renpy-sdk"
 
-      - name: Boot Ren'Py and verify initialized voice playback
+      - name: Boot Ren'Py and verify initialized UI and voice playback
         shell: pwsh
         env:
           RENPY_RENDERER: angle2

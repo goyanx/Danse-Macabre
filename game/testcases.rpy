@@ -26,6 +26,13 @@ init python:
                 renpy.unlink_save(slot)
 
 
+testcase act_card_initialization:
+    run Show("facade_act_card", act_label="ACT II", act_name="THE POLITE WAR")
+    pause 0.2
+    assert renpy.get_screen("facade_act_card") is not None
+    run Quit(confirm=False)
+
+
 testcase voice_initialization:
     $ _preferences.set_volume("voice", 1.0)
     $ _preferences.mute["voice"] = False

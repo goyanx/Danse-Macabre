@@ -177,6 +177,18 @@ class StoryContractTests(unittest.TestCase):
         self.assertIn("MainMenu(confirm=False, save=False)()", ending.group(1))
         self.assertNotRegex(ending.group(1), r"(?m)^\s+return\s*$")
 
+    def test_every_act_uses_the_cinematic_title_card(self):
+        self.assertIn("screen facade_act_card(act_label, act_name):", self.story_source)
+        self.assertIn("label facade_show_act_card(title):", self.story_source)
+        self.assertIn("window hide", self.story_source)
+
+        calls = re.findall(
+            r"call facade_show_act_card\(facade_act_title\)",
+            self.story_source,
+        )
+        self.assertEqual(len(calls), len(storydm.ACTS))
+        self.assertNotIn('dm "[facade_act_title]"', self.story_source)
+
 
 class TTSContractTests(unittest.TestCase):
     @classmethod

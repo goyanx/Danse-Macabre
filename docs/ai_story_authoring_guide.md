@@ -81,6 +81,12 @@ game/script.rpy: start
     -> callback changes scene state, unlocks rooms, or ends the story
 ```
 
+Act boundaries use the reusable `facade_act_card` screen rather than Director
+dialogue. The full-width cinematic overlay hides the dialogue window, preserves
+the current scene as background art, blocks controls beneath it, and dismisses
+after a short hold or player input. New stories should use an equivalent
+chapter-card treatment for major structural transitions.
+
 The major ownership boundary is:
 
 - `storydm` decides **whether and how progress occurred**.
