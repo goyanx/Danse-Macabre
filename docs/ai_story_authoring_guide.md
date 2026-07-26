@@ -620,6 +620,35 @@ to reproduce the role and style, even if exact pixels cannot be reproduced.
 
 Run these checks after story or architecture changes.
 
+### Automated regression suite
+
+```powershell
+python -m pip install -r requirements-dev.txt
+python tools\run_tests.py
+```
+
+The suite is offline and must not call OpenAI, Ollama, ElevenLabs, or Kokoro.
+It covers:
+
+- Act and beat schemas, IDs, ordered progression, wrong-room behavior, and nudges.
+- At least one working authored choice for every beat.
+- Callback labels, room labels, required assets, and native image dimensions.
+- Choice-text contrast in the idle state.
+- The generated TTS callback argument, cache loading, channel, and mixer contract.
+- Async completion behavior, fallback behavior, and save-safe job state.
+- Credential-like values in project text.
+
+When fixing a regression, add or strengthen a test that would have caught it.
+Put deterministic story tests in `tests/test_storydm.py`, cross-file and asset
+contracts in `tests/test_project_contracts.py`, and model-adapter tests in
+`tests/test_chatgpt_adapter.py`.
+
+Run the suite and Ren'Py lint together with:
+
+```powershell
+python tools\run_tests.py --lint
+```
+
 ### Static checks
 
 ```powershell

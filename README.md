@@ -55,3 +55,20 @@ python tools\generate_elevenlabs_sfx.py
 ```
 
 Voice provider setup is documented in `docs/tts_providers.md`.
+
+## Tests
+
+Install the small development dependency set, then run the offline regression suite:
+
+```powershell
+python -m pip install -r requirements-dev.txt
+python tools\run_tests.py
+```
+
+Run the same suite followed by Ren'Py lint:
+
+```powershell
+python tools\run_tests.py --lint
+```
+
+The tests do not call cloud APIs, Ollama, or Kokoro. GitHub Actions runs the offline suite on every push and pull request.
