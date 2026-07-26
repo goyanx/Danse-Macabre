@@ -641,8 +641,10 @@ It covers:
 The Ren'Py integration test boots the initialized application and plays
 `tests/fixtures/director_voice_smoke.wav` through the production `AudioData` and
 `generated_voice` path. It verifies decoding, voice-mixer state, and that
-playback survives an interaction cycle. It intentionally does not test live
-provider credentials, network availability, or local Kokoro installation.
+playback survives an interaction cycle. It also performs a real save while an
+intentionally unpickleable lock occupies the transient TTS runtime container.
+It intentionally does not test live provider credentials, network availability,
+or local Kokoro installation.
 
 When fixing a regression, add or strengthen a test that would have caught it.
 Put deterministic story tests in `tests/test_storydm.py`, cross-file and asset

@@ -80,5 +80,6 @@ python tools\run_tests.py --voice-init --lint
 
 The tests do not call cloud APIs, Ollama, or Kokoro. The engine test verifies
 voice initialization, decoding, mixer state, and sustained playback without
-depending on provider availability. GitHub Actions runs both the offline suite
-and engine voice test on every push and pull request.
+depending on provider availability. It also performs a real save while
+unpickleable TTS runtime state is active. GitHub Actions runs both the offline
+suite and engine voice test on every push and pull request.

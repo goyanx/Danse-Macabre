@@ -60,11 +60,15 @@ init python:
         },
     }
 
-    _tts_jobs = set()
-    _tts_current_key = None
-    _tts_lock = threading.Lock()
-    _kokoro_process = None
-    _kokoro_process_lock = threading.Lock()
+    class _TTSRuntime(NoRollback):
+        def __init__(self):
+            self.jobs = set()
+            self.current_key = None
+            self.jobs_lock = threading.Lock()
+            self.kokoro_process = None
+            self.kokoro_process_lock = threading.Lock()
+
+    _tts_runtime = _TTSRuntime()
 
     def _tts_cache_dir():
         root = getattr(renpy.config, "savedir", None) or getattr(renpy.config, "gamedir", ".")
@@ -97,8 +101,7 @@ init python:
         return "Speak as a calm, cinematic mystery narrator with subtle tension and clear pacing. Natural and intimate, not robotic."
 
     def _tts_play_if_current(key, path):
-        global _tts_current_key
-        if key != _tts_current_key:
+        if key != _tts_runtime.current_key:
             return
         if not os.path.exists(path):
             return
@@ -194,14 +197,14 @@ init python:
             "speed": 1.0,
         })
 
-        with _kokoro_process_lock:
+        with _tts_runtime.kokoro_process_lock:
             _tts_start_kokoro_server_unlocked(script)
 
             try:
-                _kokoro_process.stdin.write(request + "\n")
-                _kokoro_process.stdin.flush()
+                _tts_runtime.kokoro_process.stdin.write(request + "\n")
+                _tts_runtime.kokoro_process.stdin.flush()
                 while True:
-                    line = _kokoro_process.stdout.readline()
+                    line = _tts_runtime.kokoro_process.stdout.readline()
                     if not line:
                         raise RuntimeError("Kokoro worker stopped unexpectedly.")
                     if line.startswith("__KOKORO_RESULT__"):
@@ -215,8 +218,8 @@ init python:
             raise RuntimeError(result.get("error", "Kokoro TTS failed."))
 
     def _tts_start_kokoro_server_unlocked(script=None):
-        global _kokoro_process
-        if _kokoro_process is not None and _kokoro_process.poll() is None:
+        process = _tts_runtime.kokoro_process
+        if process is not None and process.poll() is None:
             return
 
         if script is None:
@@ -225,7 +228,7 @@ init python:
             return
 
         python_exe = TTS_KOKORO_PYTHON if os.path.isfile(TTS_KOKORO_PYTHON) else "python"
-        _kokoro_process = subprocess.Popen(
+        _tts_runtime.kokoro_process = subprocess.Popen(
             [python_exe, script, "--server"],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
@@ -239,17 +242,16 @@ init python:
             return
         if getattr(store, "tts_provider", "kokoro") != "kokoro":
             return
-        if not _kokoro_process_lock.acquire(False):
+        if not _tts_runtime.kokoro_process_lock.acquire(False):
             return
         try:
             _tts_start_kokoro_server_unlocked()
         finally:
-            _kokoro_process_lock.release()
+            _tts_runtime.kokoro_process_lock.release()
 
     def _tts_stop_kokoro_server():
-        global _kokoro_process
-        process = _kokoro_process
-        _kokoro_process = None
+        process = _tts_runtime.kokoro_process
+        _tts_runtime.kokoro_process = None
         if process is not None and process.poll() is None:
             try:
                 process.terminate()
@@ -274,24 +276,23 @@ init python:
             )
             renpy.log("{} TTS generation failed: {}".format(provider, e))
         finally:
-            with _tts_lock:
-                _tts_jobs.discard(key)
+            with _tts_runtime.jobs_lock:
+                _tts_runtime.jobs.discard(key)
 
     def _tts_start_cached(provider, speaker, text):
-        global _tts_current_key
         extension = "wav" if provider == "kokoro" else "mp3"
         key, path = _tts_cache_path(provider, speaker, text, extension)
-        _tts_current_key = key
+        _tts_runtime.current_key = key
 
         if os.path.exists(path):
             store.tts_status = "Using cached voice."
             _tts_play_if_current(key, path)
             return
 
-        with _tts_lock:
-            if key in _tts_jobs:
+        with _tts_runtime.jobs_lock:
+            if key in _tts_runtime.jobs:
                 return
-            _tts_jobs.add(key)
+            _tts_runtime.jobs.add(key)
 
         worker = threading.Thread(target=_tts_generate_worker, args=(provider, speaker, text, key, path))
         worker.daemon = True

@@ -165,6 +165,15 @@ class TTSContractTests(unittest.TestCase):
     def test_external_cache_uses_audio_data(self):
         self.assertIn("renpy.audio.audio.AudioData", self.tts_source)
 
+    def test_transient_tts_state_is_excluded_from_saves(self):
+        self.assertIn("class _TTSRuntime(NoRollback):", self.tts_source)
+        for field in (
+            "jobs_lock",
+            "kokoro_process",
+            "kokoro_process_lock",
+        ):
+            self.assertIn("_tts_runtime.{}".format(field), self.tts_source)
+
     def test_voice_initialization_fixture_is_valid_spoken_audio(self):
         fixture = ROOT / "tests" / "fixtures" / "director_voice_smoke.wav"
 
@@ -184,6 +193,8 @@ class TTSContractTests(unittest.TestCase):
             'renpy.music.is_playing(channel="generated_voice")',
             testcase_source,
         )
+        self.assertIn("_tts_runtime.kokoro_process =", testcase_source)
+        self.assertIn("renpy.save(slot", testcase_source)
 
 
 class RepositoryHygieneTests(unittest.TestCase):
