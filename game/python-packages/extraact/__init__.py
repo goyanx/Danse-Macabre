@@ -129,10 +129,10 @@ class ExtraActState:
     def persona_summary(self):
         mood = self.mood_name()
         summaries = {
-            "guarded": "Lila is elegant and alert, using wit to protect her independence.",
-            "curious": "Lila is intrigued but watches whether the player listens as well as flirts.",
-            "warm": "Lila is candid, playful, and willing to risk tenderness.",
-            "close": "Lila is trusting, intimate, and direct while keeping clear boundaries.",
+            "guarded": "Lila is alert, careful, and plainspoken when she feels pressured.",
+            "curious": "Lila is intrigued, cautious, and watching whether the player actually listens.",
+            "warm": "Lila is candid, playful, emotionally open, and less afraid to show what she feels.",
+            "close": "Lila is trusting, intimate, direct, and expressive while keeping clear boundaries.",
         }
         return summaries[mood]
 

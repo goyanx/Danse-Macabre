@@ -537,7 +537,21 @@ new story's central reveals. Test adversarial questions such as:
 The Director may explain controls and summarize earned facts. It may not mention
 models, prompts, beats, triggers, or source code in character.
 
-## 14. TTS Architecture
+## 14. Dynamic Dialogue Style
+
+Dynamic NPC replies should sound like people reacting in the moment, not like
+finished prose. Prefer casual, plain spoken dialogue that reflects the
+character's current emotional state. Short fragments, hesitations, sighs, soft
+laughs, blunt admissions, anger, hurt, relief, nervousness, and tenderness are
+allowed when the state supports them.
+
+Avoid polished aphorisms, theatrical prose, glib banter, generic flirtation, and
+overly clever lines. Keep the existing speaker prefix, word limits, spoiler
+guards, and fallback behavior. Extra Act intimacy may include restrained vocal
+reactions, but it must remain consensual, adult, suggestive rather than
+graphically sexual, and respectful of Lila's boundaries.
+
+## 15. TTS Architecture
 
 Characters opt into speech using a callback property:
 
@@ -585,7 +599,7 @@ Character with a matching lowercase speaker key.
 Never hardcode API keys. Use environment variables documented in
 `docs/tts_providers.md`.
 
-## 15. Visual Asset System
+## 16. Visual Asset System
 
 The native canvas is `1920x1080`.
 
@@ -643,7 +657,7 @@ Before adding an asset:
 the source of the current photorealistic room art. Do not run it over final
 backgrounds unless replacing them intentionally.
 
-## 16. Map Asset Rules
+## 17. Map Asset Rules
 
 A map must include every playable area and every required connection.
 
@@ -669,7 +683,7 @@ After changing locations, compare:
 
 All five views must agree.
 
-## 17. Audio Asset System
+## 18. Audio Asset System
 
 Use:
 
@@ -695,7 +709,7 @@ ElevenLabs-generated sound effects are defined in
 `tools/generate_elevenlabs_sfx.py`. Keep prompts concrete and specify "no voices"
 when speech-like artifacts would be distracting.
 
-## 18. UI and Responsiveness
+## 19. UI and Responsiveness
 
 The standard choice screen has explicit idle, hover, insensitive, and selected
 text colors. New controls must remain readable without hover.
@@ -715,7 +729,7 @@ UI rules:
 
 For a long async task, reveal deterministic content first and enrich it later.
 
-## 19. Asset and Secret Hygiene
+## 20. Asset and Secret Hygiene
 
 Before committing:
 
@@ -731,7 +745,7 @@ Before committing:
 Generated assets are project-bound. Record enough prompt detail for another AI
 to reproduce the role and style, even if exact pixels cannot be reproduced.
 
-## 20. Validation Checklist
+## 21. Validation Checklist
 
 Run these checks after story or architecture changes.
 
@@ -819,7 +833,7 @@ Test:
 The offline playthrough is mandatory. A narrative is not complete if a service
 failure can prevent the ending.
 
-## 21. AI Change Protocol
+## 22. AI Change Protocol
 
 An AI modifying this project should follow this sequence:
 
@@ -837,7 +851,7 @@ An AI modifying this project should follow this sequence:
 Do not stop after generating assets or prose. Wire them into the game, remove
 obsolete references, validate the playable path, and document the result.
 
-## 22. Completion Definition
+## 23. Completion Definition
 
 A new story or narrative modification is complete only when:
 

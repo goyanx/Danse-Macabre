@@ -305,6 +305,20 @@ class ExtraActContractTests(unittest.TestCase):
         self.assertIn('response.lower().startswith("lila:")', self.source)
         self.assertIn("len(response.split()) > 36", self.source)
 
+    def test_dynamic_npc_prompts_prefer_plain_emotional_dialogue(self):
+        for requirement in (
+            "casual, plain spoken dialogue",
+            "immediate state of mind",
+            "Short emotional fragments",
+            "Avoid polished aphorisms",
+            "glib banter",
+        ):
+            with self.subTest(requirement=requirement):
+                self.assertIn(requirement, self.source)
+                self.assertIn(requirement, self.main_story)
+
+        self.assertIn("restrained moans", self.source)
+
     def test_extra_act_read_moment_uses_bounded_llm_insight(self):
         self.assertIn("def extra_moment_messages(state):", self.source)
         self.assertIn("state.moment_context()", self.source)
